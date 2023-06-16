@@ -6,7 +6,47 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 01. An Animated Introduction to MVC
 
+- About
+
+  Before we get started, come along for a quick two minute overview of the MVC architecture. MVC stands for "Model, View, Controller" and is the bedrock for building Laravel applications.
+
 ## 02. Initial Environment Setup and Composer
+
+- About
+
+  - I hope you're excited. It's time to dig in. Now, as for prerequisites, you'll need access to a good editor, a terminal, and of course PHP and MySQL. We'll also need to get a tool called [Composer](https://getcomposer.org/) installed on your machine.
+
+- Your First Laravel Project
+
+  - Via the Composer `create-project` command:
+
+    ```bash
+    composer create-project laravel/laravel example-app
+    ```
+
+  - By globally installing the Laravel installer via Composer:
+
+    ```bash
+    composer global require laravel/installer
+
+    laravel new example-app
+    ```
+
+  - After the project has been created, start Laravel's local development server using the Laravel's Artisan CLI `serve` command:
+
+    ```bash
+    cd example-app
+
+    php artisan serve
+    ```
+
+    - Note:
+
+      - To expose the host
+
+        ```bash
+        php artisan serve --host=0.0.0.0
+        ```
 
 ## 03. The Laravel Installer Tool
 
