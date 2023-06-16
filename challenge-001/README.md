@@ -68,15 +68,37 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 05. How a Route Loads a View
 
+- About
+
+  Let's begin with the basics. If you load the home page for any new Laravel app in the browser, you'll see a basic "welcome" splash page. In this lesson, we'll figure out how a route "listens" for a URI and then loads a view (or HTML) in response.
+
 ## 06. Include CSS and JavaScript
+
+- About
+
+  Now that we understand how a particular URI ultimately loads a piece of HTML, let's now figure out how to include some generic CSS and JavaScript assets.
 
 ## 07. Make a Route and Link to it
 
+- The simplest form of our blog will surely consist of a list of blog post excerpts, which then individually link to a different page that contains the full post. Let's begin working toward that goal.
+
 ## 08. Store Blog Posts as HTML Files
+
+- About
+
+  Before we reach for a database, let's discuss how to store each blog post within its own HTML file. Then, in our routes file, we can use a route wildcard to determine which post needs to be fetched and passed to the view.
 
 ## 09. Route Wildcard Constraints
 
+- About
+
+  - Sometimes, you'll wish to limit a route wildcard to only a certain sequence or pattern of characters. Luckily, Laravel makes this a cinch. In this episode, we'll add a constraint to our route to ensure that the blog post slug consists exclusively of any combination of letters, numbers, dashes, and underscores.
+
 ## 10. Use Caching for Expensive Operations
+
+- About
+
+  Reaching for `file_get_contents()` each time a blog post is viewed isn't ideal. Think about it: if ten thousand people view a blog post at the same time, that means you're calling `file_get_contents()` ten thousand times. That surely seems wasteful, particularly when blog posts rarely change. What if we instead cached the HTML for each post to improve performance? Learn how in this episode.
 
 ## 11. Use the Filesystem Class to Read a Directory
 
