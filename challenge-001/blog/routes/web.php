@@ -35,4 +35,4 @@ Route::get('posts/{post}', function ($slug) {
         // 'post' => '<h1>Hello World</h1>' // $post
         'post' => file_get_contents($path)
     ]);
-});
+})->where('post', '[A-z_\-]+'); // Or whereAlpha, whereNumber, whereAlphaNumeric
