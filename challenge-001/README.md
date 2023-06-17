@@ -108,6 +108,28 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 12. Find a Composer Package for Post Metadata
 
+- About
+
+  At the conclusion of the previous episode, we considered adding metadata to the top of each post file. As it turns out, this metadata format has a name: Yaml Front Matter. Let's see if we can [find a Composer package](https://github.com/spatie/yaml-front-matter) to help us parse it. This will give us a nice opportunity to learn how easy and useful Composer is.
+
+- Problem
+
+  - In the previous episode, files are read by alphabetically. We need a metadata for each file so we can easily sort them based on it. For example,
+
+    - my-fourth-post.html
+
+          ---
+          title: My Fourth Post
+          excerpt: Lorem ipsum dolor sit amet consectetur
+          adipisicing elit. date: 2023-06-17
+          ---
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis
+            alias a deleniti aliquam sed exercitationem natus, consequuntur
+            reiciendis amet excepturi labore vero voluptatibus, voluptate debitis?
+            Labore id nemo atque!
+          </p>
+
 ## 13. Collection Sorting and Caching Refresher
 
 # 3. Blade
