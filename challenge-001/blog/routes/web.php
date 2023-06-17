@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Post;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,46 +15,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    // return view('welcome');
-    // return 'Hello World';
-    // return ['foo' => 'bar'];
-    return view('posts');
+    // $posts = Post::all();
+
+    // ddd($posts);
+    // ddd($posts[0]->getContents());
+
+    return view('posts', [
+        'posts' => Post::all()
+    ]);
 });
 
 Route::get('posts/{post}', function ($slug) {
-    $path = __DIR__ . "/../resources/posts/{$slug}.html";
-
-    if (!file_exists($path)) {
-        // dd('file does not exist'); // Dump, Die
-        // ddd('file does not exist'); // Dump, Die, Debug
-
-        // abort(404);
-        return redirect('/');
-    }
-
-    // $post = cache()->remember("posts.{$slug}", 5, function () use ($path) {
-    //     var_dump('file_get_contents'); // Get value from cache for 5 seconds, once it times out, it will fetch from execute callback and return
-    //     return file_get_contents($path);
-    // });
-
-    // $post = cache()->remember(
-    //     "posts.{$slug}",
-    //     5,
-    //     fn () => file_get_contents($path)
-    // );
-
-    // $post = cache()->remember("posts.{$slug}", now()->addMinutes(20), function () use ($path) {
-    //     return file_get_contents($path);
-    // });
-
-    $post = cache()->remember(
-        "posts.{$slug}",
-        now()->addMinutes(20),
-        fn () => file_get_contents($path)
-    );
-
+    // Find a post by its slug and pass it to a view called "post"
     return view('post', [
-        // 'post' => '<h1>Hello World</h1>' // $post
-        'post' => $post
+        'post' => Post::find($slug)
     ]);
 })->where('post', '[A-z_\-]+'); // Or whereAlpha, whereNumber, whereAlphaNumeric

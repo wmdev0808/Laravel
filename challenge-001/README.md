@@ -102,6 +102,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 11. Use the Filesystem Class to Read a Directory
 
+- About
+
+  Let's now figure out to fetch and read all posts within the `resources/posts` directory. Once we have a suitable array, we can then loop over them and display each on the main blog overview page.
+
 ## 12. Find a Composer Package for Post Metadata
 
 ## 13. Collection Sorting and Caching Refresher
