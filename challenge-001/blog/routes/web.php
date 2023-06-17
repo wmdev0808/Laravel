@@ -20,6 +20,19 @@ Route::get('/', function () {
     return view('posts');
 });
 
-Route::get('post', function () {
-    return view('post');
+Route::get('posts/{post}', function ($slug) {
+    $path = __DIR__ . "/../resources/posts/{$slug}.html";
+
+    if (!file_exists($path)) {
+        // dd('file does not exist'); // Dump, Die
+        // ddd('file does not exist'); // Dump, Die, Debug
+
+        // abort(404);
+        return redirect('/');
+    }
+
+    return view('post', [
+        // 'post' => '<h1>Hello World</h1>' // $post
+        'post' => file_get_contents($path)
+    ]);
 });
