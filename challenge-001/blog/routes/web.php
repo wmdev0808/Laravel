@@ -31,8 +31,29 @@ Route::get('posts/{post}', function ($slug) {
         return redirect('/');
     }
 
+    // $post = cache()->remember("posts.{$slug}", 5, function () use ($path) {
+    //     var_dump('file_get_contents'); // Get value from cache for 5 seconds, once it times out, it will fetch from execute callback and return
+    //     return file_get_contents($path);
+    // });
+
+    // $post = cache()->remember(
+    //     "posts.{$slug}",
+    //     5,
+    //     fn () => file_get_contents($path)
+    // );
+
+    // $post = cache()->remember("posts.{$slug}", now()->addMinutes(20), function () use ($path) {
+    //     return file_get_contents($path);
+    // });
+
+    $post = cache()->remember(
+        "posts.{$slug}",
+        now()->addMinutes(20),
+        fn () => file_get_contents($path)
+    );
+
     return view('post', [
         // 'post' => '<h1>Hello World</h1>' // $post
-        'post' => file_get_contents($path)
+        'post' => $post
     ]);
 })->where('post', '[A-z_\-]+'); // Or whereAlpha, whereNumber, whereAlphaNumeric
