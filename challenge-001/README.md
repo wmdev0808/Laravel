@@ -228,6 +228,14 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 15. Blade Layouts Two Ways
 
+- About
+
+  The next problem we need to solve relates to the fact that each of our views contains the full HTML structure - including any potential scripts and stylesheets. This means, should we need to add a new stylesheet, we must update every single view. This clearly won't do. Instead, we can reach for layout files to reduce duplication. In this episode, I'll demonstrate two different ways to create layouts.
+
+- 1. Create and use layout views using `@yield`, `@extends` and `@section`
+
+- 2. Use Blade Components
+
 ## 16. A Few Tweaks and Consideration
 
 # 4. Working with Databases
