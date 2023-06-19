@@ -291,6 +291,224 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 19. Eloquent and the Active Record Pattern
 
+- About
+
+  Let's now move on to Eloquent, which is Laravel's Active Record implementation. Eloquent allows us to map a database table record to a corresponding Eloquent object. In this episode, you'll learn the initial API - which should seem quite familiar if you followed along with the previous chapter.
+
+- Active record pattern
+
+  - The active record pattern is an approach to accessing data in a database. A database table or view is wrapped into a class. Thus an object instance is tied to a single row in the table.
+
+- Artisan Console
+
+  - Artisan is the command line interface included with Laravel. Artisan exists at the root of your application as the `artisan` script and provides a number of helpful commands that can assist you while you build your application. To view a list of all available Artisan commands, you may use the `list` command:
+
+        php artisan list
+
+  - Every command also includes a "help" screen which displays and describes the command's available arguments and options. To view a help screen, precede the name of the command with `help`:
+
+        php artisan help migrate
+
+- Tinker (REPL)
+
+  - Laravel Tinker is a powerful REPL for the Laravel framework, powered by the [PsySH](https://github.com/bobthecow/psysh) package.
+
+    - `PsySH` is a runtime developer console, interactive debugger and `REPL` for `PHP`.
+
+  - Installation
+
+        composer require laravel/tinker
+
+  - Usage:
+
+    - Tinker allows you to interact with your entire Laravel application on the command line, including your Eloquent models, jobs, events, and more. To enter the Tinker environment, run the `tinker` Artisan command:
+
+          php artisan tinker
+
+    - You can publish Tinker's configuration file using the `vendor:publish` command:
+
+          php artisan vendor:publish --provider="Laravel\Tinker\TinkerServiceProvider"
+
+- In Tinker,
+
+      php artisan tinker
+
+      > $user = new App\Models\User;
+      = App\Models\User {#6214}
+
+      > $user->name = 'UserName';
+      = "PaulLi"
+
+      > $user->email = 'username@mail.com';
+      = "username@mail.com"
+
+      > $user->password = bcrypt('password');
+      = "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO"
+
+      > $user->save();
+      = true
+
+      > $user->name
+      = "UserName"
+
+      > $user->password
+      = "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO"
+
+      > $user->email
+      = "username@mail.com"
+
+      > $user->name = 'John Doe'
+      = "John Doe"
+
+      > $user->save()
+      = true
+
+      > User::find(1)
+      [!] Aliasing 'User' to 'App\Models\User' for this Tinker session.
+      = App\Models\User {#7171
+          id: 1,
+          name: "John Doe",
+          email: "usrname@mail.com",
+          email_verified_at: null,
+          #password: "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO",
+          #remember_token: null,
+          created_at: "2023-06-19 14:04:32",
+          updated_at: "2023-06-19 14:09:01",
+        }
+
+      > User::find(10)
+      = null
+
+      > User::findOrFail(10);
+
+        Illuminate\Database\Eloquent\ModelNotFoundException  No query results for model [App\Models\User] 10.
+
+      > User::all()
+      = Illuminate\Database\Eloquent\Collection {#7227
+          all: [
+            App\Models\User {#7225
+              id: 1,
+              name: "John Doe",
+              email: "username@mail.com",
+              email_verified_at: null,
+              #password: "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO",
+              #remember_token: null,
+              created_at: "2023-06-19 14:04:32",
+              updated_at: "2023-06-19 14:09:01",
+            },
+          ],
+        }
+
+      > $user = new User;
+      = App\Models\User {#7221}
+
+      > $user->name = 'Sally'
+      = "Sally"
+
+      > $user->email = 'sally@example.com'
+      = "sally@example.com"
+
+      > $user->password = bcrypt('password');
+      = "$2y$10$Xrb3nbHFMgwbdVTWzg0Gp.SpqzkddZVzRR0Wt.5.iuN4NKmhaSAm."
+
+      > $user->save()
+      = true
+
+      > User::all()
+      [!] Aliasing 'User' to 'App\Models\User' for this Tinker session.
+      = Illuminate\Database\Eloquent\Collection {#6551
+          all: [
+            App\Models\User {#7169
+              id: 1,
+              name: "John Doe",
+              email: "username@mail.com",
+              email_verified_at: null,
+              #password: "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO",
+              #remember_token: null,
+              created_at: "2023-06-19 14:04:32",
+              updated_at: "2023-06-19 14:14:49",
+            },
+            App\Models\User {#7170
+              id: 2,
+              name: "Sally",
+              email: "sally@example.com",
+              email_verified_at: null,
+              #password: "$2y$10$Xrb3nbHFMgwbdVTWzg0Gp.SpqzkddZVzRR0Wt.5.iuN4NKmhaSAm.",
+              #remember_token: null,
+              created_at: "2023-06-19 14:16:44",
+              updated_at: "2023-06-19 14:16:44",
+            },
+          ],
+        }
+
+      > $users = User::all();
+      = Illuminate\Database\Eloquent\Collection {#7178
+          all: [
+            App\Models\User {#7176
+              id: 1,
+              name: "John Doe",
+              email: "username@mail.com",
+              email_verified_at: null,
+              #password: "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO",
+              #remember_token: null,
+              created_at: "2023-06-19 14:04:32",
+              updated_at: "2023-06-19 14:14:49",
+            },
+            App\Models\User {#7175
+              id: 2,
+              name: "Sally",
+              email: "sally@example.com",
+              email_verified_at: null,
+              #password: "$2y$10$Xrb3nbHFMgwbdVTWzg0Gp.SpqzkddZVzRR0Wt.5.iuN4NKmhaSAm.",
+              #remember_token: null,
+              created_at: "2023-06-19 14:16:44",
+              updated_at: "2023-06-19 14:16:44",
+            },
+          ],
+        }
+
+      > $users->pluck('name');
+      = Illuminate\Support\Collection {#6551
+          all: [
+            "John Doe",
+            "Sally",
+          ],
+        }
+
+      > $users->map(function($user) { return $user->name; });
+      = Illuminate\Support\Collection {#6213
+          all: [
+            "John Doe",
+            "Sally",
+          ],
+        }
+
+      > $users->first();
+      = App\Models\User {#7176
+          id: 1,
+          name: "John Doe",
+          email: "username@mail.com",
+          email_verified_at: null,
+          #password: "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO",
+          #remember_token: null,
+          created_at: "2023-06-19 14:04:32",
+          updated_at: "2023-06-19 14:14:49",
+        }
+
+      > $users[0]
+      = App\Models\User {#7176
+          id: 1,
+          name: "John Doe",
+          email: "username@mail.com",
+          email_verified_at: null,
+          #password: "$2y$10$qF1Ed9MXTW.lUniiMW0OMOefHLn7OjP2TUjPE9H6pShwUJTSE58SO",
+          #remember_token: null,
+          created_at: "2023-06-19 14:04:32",
+          updated_at: "2023-06-19 14:14:49",
+        }
+
+      >
+
 ## 20. Make a Post Model and Migration
 
 ## 21. Eloquent Updates and HTML Escaping
