@@ -242,6 +242,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 16. A Few Tweaks and Consideration
 
+- About
+
+  Before we move on to the next chapter, on databases, let's make a couple tweaks to wrap up these last two sections. First, we'll remove the route constraint that is no longer required. Then, we'll consider the benefits of adding a second `Post::findOrFail()` method that automatically aborts if no post matching the given slug is found.
+
 # 4. Working with Databases
 
 ## 17. Environment Files and Database Connections
