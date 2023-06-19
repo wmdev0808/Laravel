@@ -234,7 +234,11 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 - 1. Create and use layout views using `@yield`, `@extends` and `@section`
 
+  - Bottom-up approach
+
 - 2. Use Blade Components
+
+  - Up-down approach
 
 ## 16. A Few Tweaks and Consideration
 
