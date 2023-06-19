@@ -132,6 +132,51 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 13. Collection Sorting and Caching Refresher
 
+- About
+
+  Each post now includes the publish date as part of its metadata, however, the feed is not currently sorted according to that date. Luckily, because we're using Laravel collections, tasks like this our a cinch. In this episode, we'll fix the sorting and then discuss "forever" caching.
+
+- Check cache
+
+  - Open Laravel Tinker
+
+        php artisan tinker
+        cache('posts.all')
+        = null
+
+  - Refresh the page and then run the command again, we must have contents in the cache now.
+
+        >>> cache('posts.all')
+        => Illuminate\Support\Collection...
+
+  - When we add a new page, we are not refreshing the cache
+
+        >>> cache()->forget('posts.all');
+        = true
+
+  - Now refresh the page, we will get the last added post as well
+
+        >>> cache()->get('posts.all');
+        => Illuminate\Support\Collection ...
+
+  - Experiment other cache methods:
+
+        >>> cache()->put('foo', 'bar');
+        = true
+        >>> cache()->get('foo');
+        = "bar"
+
+        >>> cache(['foo' => 'buzz']);
+        => true
+        >>> cache('foo');
+        => "buzz"
+
+        > cache(['foo' => 'buzz'], now()->addSeconds(3));
+        = true
+
+        > cache('foo');
+        = null
+
 # 3. Blade
 
 ## 14. Blade: The Absolute Basics
