@@ -181,6 +181,51 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 14. Blade: The Absolute Basics
 
+- About
+
+  Blade is Laravel's templating engine for your views. You can think of it as a layer on top of PHP to make the syntax required for constructing these views as clean and terse as possible. Ultimately, these Blade templates will be compiled to vanilla PHP behind the scenes.
+
+- A file name should be suffixed by `.blade.php` so it can be compiled into vanilla php.
+
+  - You can check the compiled version at `storage/framework/views/`
+
+        <?php echo e($post->title); ?>
+
+- resources/views/post.blade.php
+
+      ...
+      {{ $post->body }}
+      ...
+
+  - Then you will get the escaped content, to fix this:
+
+        {!! $post->body !!}
+
+- Use blade directives
+
+  - Instead of using `foreach` statement, you can use a blade directive, `@foreach`
+
+  - You can also use `$loop`
+
+        @dd($loop)
+
+    - posts.blade.php
+
+          ...
+          <article class="{{ $loop->even ? 'foobar' : '' }}">
+
+  - There are always vanilla PHP statement equivalent Blade directives:
+
+    - for example
+
+          @if (ture)
+
+          @endif
+
+          @unless
+
+          @endunless
+
 ## 15. Blade Layouts Two Ways
 
 ## 16. A Few Tweaks and Consideration
