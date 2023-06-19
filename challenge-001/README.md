@@ -250,6 +250,26 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 17. Environment Files and Database Connections
 
+- About
+
+  Every application will require a certain amount of environment-specific configuration. Examples for this might be the name of the database you're connecting to, or which mail host and port your app uses, or even special keys and secret tokens that third party APIs provide you. You can store configuration like this within your `.env` file, which is located in your project root. In this episode, we'll discuss the essentials of environment files, and then move on to connecting to a MySQL database (using [TablePlus](https://www.tableplus.io/download)).
+
+- .env
+
+  - Config file for app, db, mail, third-party app config
+
+- Database config
+
+  - /config/database.php
+
+- Create a new database `blog`
+
+      mysql> create database blog;
+
+- Run migration
+
+      php artisan migrate
+
 ## 18. Migrations: The Absolute Basics
 
 ## 19. Eloquent and the Active Record Pattern
