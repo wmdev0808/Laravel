@@ -272,6 +272,23 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 18. Migrations: The Absolute Basics
 
+- About
+
+  Now that we've properly connected to MySQL, let's switch our attention over to those mysterious migration classes. Think of a migration as a blueprint for a database table.
+
+- /database/migrations/2014_10_12_000000_create_users_table.php
+
+- Rollback migrations
+
+      php artisan migrate:rollback
+
+- Drop all tables and re-run all migrations
+
+      php artisan migrate:fresh
+
+  - If you change `APP_ENV` to `production`, then run the above command:
+    - You'll get a prompt asking, `Do you really wish to run this command?`
+
 ## 19. Eloquent and the Active Record Pattern
 
 ## 20. Make a Post Model and Migration
