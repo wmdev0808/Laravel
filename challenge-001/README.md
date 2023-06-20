@@ -511,6 +511,133 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 20. Make a Post Model and Migration
 
+- About
+
+  Now that you're a bit more familiar with migration classes and Eloquent models, let's apply this learning to our blog project. We'll remove the old file-based implementation from the previous chapter, and replace it with a brand new Post Eloquent model. We'll also prepare a migration to build up the posts table.
+
+- The relevant PHP Artisan Make commands
+
+  - `make:model` : Create a new Eloquent model class
+  - `make:migration` : Create a new migration file
+
+    - For details of the command:
+
+          php artisan help make:migration
+
+- Create a migration for Post model
+
+      php artisan make:migration create_posts_table
+
+- /database/migrations/2023_06_20_005430_create_posts_table.php
+
+      ...
+      public function up(): void
+      {
+          Schema::create('posts', function (Blueprint $table) {
+              $table->id();
+              $table->string('title');
+              $table->text('excerpt');
+              $table->text('body');
+              $table->timestamps();
+              $table->timestamp('published_at')->nullable();
+          });
+      }
+
+- Run migration
+
+      php artisan migrate
+
+- Create a new model
+
+      php artisan make:model Post
+
+- In Tinker
+
+      php artisan tinker
+
+      > App\Models\Post::all()
+      = Illuminate\Database\Eloquent\Collection {#6954
+          all: [],
+        }
+
+      > App\Models\Post::count()
+      = 0
+
+      > $post->title = 'My First Post';
+      = "My First Post"
+
+      > $post->excerpt = 'Lorem ipsum dolor sit amet consectetur adipisicing elit.';
+      = "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+
+      > $post->body = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis'
+      = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis"
+
+      > $post->save();
+      = true
+
+      > use App\Models\Post;
+      > Post::count();
+      = 1
+
+      > Post::all();
+      = Illuminate\Database\Eloquent\Collection {#6954
+          all: [
+            App\Models\Post {#7175
+              id: 1,
+              title: "My First Post",
+              excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+              body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo",
+              created_at: "2023-06-20 01:28:16",
+              updated_at: "2023-06-20 01:28:16",
+              published_at: null,
+            },
+          ],
+        }
+
+      > Post::first();
+      = App\Models\Post {#7172
+          id: 1,
+          title: "My First Post",
+          excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+          body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo",
+          created_at: "2023-06-20 01:28:16",
+          updated_at: "2023-06-20 01:28:16",
+          published_at: null,
+        }
+
+      > Post::find(1);
+      = App\Models\Post {#7174
+          id: 1,
+          title: "My First Post",
+          excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+          body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo",
+          created_at: "2023-06-20 01:28:16",
+          updated_at: "2023-06-20 01:28:16",
+          published_at: null,
+        }
+
+      > $post = Post::find(1);
+      = App\Models\Post {#6954
+          id: 1,
+          title: "My First Post",
+          excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+          body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo",
+          created_at: "2023-06-20 01:28:16",
+          updated_at: "2023-06-20 01:28:16",
+          published_at: null,
+        }
+
+      > $post->title;
+      = "My First Post"
+
+      > $post->excerpt;
+      = "Lorem ipsum dolor sit amet consectetur adipisicing elit."
+
+      > $post->body;
+      = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo"
+
+      >
+
 ## 21. Eloquent Updates and HTML Escaping
 
 ## 22. 3 Ways to Mitigate Mass Assignment Vulnerabilities
