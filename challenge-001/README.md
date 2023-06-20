@@ -640,6 +640,90 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 21. Eloquent Updates and HTML Escaping
 
+- About
+
+  In this lesson, we'll briefly discuss how to go about updating database records using Eloquent. Then, we'll review an example of why escaping user-provided input is essential for the security of your application.
+
+- Wrap body field with HTML paragraph
+
+      > $post = App\Models\Post::first();
+      = App\Models\Post {#7170
+          id: 1,
+          title: "My First Post",
+          excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+          body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo",
+          created_at: "2023-06-20 01:28:16",
+          updated_at: "2023-06-20 01:28:16",
+          published_at: null,
+        }
+
+      > $post->body;
+      = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo"
+
+      > $post->body = '<p>' . $post->body . '</p>';
+      = "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>"
+
+      > $post
+      = App\Models\Post {#7170
+          id: 1,
+          title: "My First Post",
+          excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+          body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+          created_at: "2023-06-20 01:28:16",
+          updated_at: "2023-06-20 01:28:16",
+          published_at: null,
+        }
+
+      > $post->save();
+      = true
+
+      >
+
+- If we include HTML tags in the middle of the value, Laravel will escape it
+
+      > use App\Models\Post;
+      > $post = Post::first();
+      = App\Models\Post {#6913
+          id: 1,
+          title: "My First Post",
+          excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+          body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+          created_at: "2023-06-20 01:28:16",
+          updated_at: "2023-06-20 09:28:33",
+          published_at: null,
+        }
+
+      > $post->title = 'My <strong>First</strong> Post';
+      = "My <strong>First</strong> Post"
+
+      > $post->save();
+      = true
+
+      >
+
+  - Now `My <strong>First</strong> Post` will be shown on the page because Laravel will escape
+
+- Why Laravel escape HTML tags?
+
+  - Suppose that we update the `title` to include HTML `script` tag:
+
+        > $post->title = 'My Post <script>alert("hello")</script>';
+        = "My Post <script>alert("hello")</script>"
+
+        > $post->save();
+        = true
+
+        >
+
+  - When you visite the post page, the JavaScript code(`alert`) will be executed.
+  - That's why, Laravel escape values by default
+
+        {{ $post->title }}
+
+    - Output:
+
+          My Post <script>alert("hello")</script>
+
 ## 22. 3 Ways to Mitigate Mass Assignment Vulnerabilities
 
 ## 23. Route Model Binding
