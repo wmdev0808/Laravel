@@ -1193,6 +1193,73 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 26. Clockwork, and the N+1 Problem
 
+- About
+
+  We introduced a subtle performance issue in the last episode that's known as the N+1 problem. Because Laravel lazy-loads relationships, this means you can potentially fall into a trap where an additional SQL query is executed for every item within a loop. Fifty items...fifty SQL queries. In this episode, I'll show you how to debug these queries - both manually, and with the excellent [Clockwork extension](https://github.com/itsgoingd/clockwork) - and then we'll solve the problem by eager loading any relationships we'll be referencing.
+
+- Manually debug N+1 problem
+
+  - Add logger to show db queries in /routes/web.php
+
+        ...
+        Route::get('/', function () {
+            \Illuminate\Support\Facades\DB::listen(function ($query) {
+                // \Illuminate\Support\Facades\Log::info('foo');
+                logger($query->sql);
+            });
+
+            return view('posts', [
+                'posts' => Post::all()
+            ]);
+        });
+
+  - Navigate `/` in browser
+
+  - /storage/logs/laravel.log
+
+        [2023-06-22 12:58:48] local.DEBUG: select * from `posts`
+        [2023-06-22 12:58:48] local.DEBUG: select * from `categories` where `categories`.`id` = ? limit 1
+        [2023-06-22 12:58:48] local.DEBUG: select * from `categories` where `categories`.`id` = ? limit 1
+        [2023-06-22 12:58:48] local.DEBUG: select * from `categories` where `categories`.`id` = ? limit 1
+
+  - To show SQL bindings
+
+        logger($query->sql, $query-bindings);
+
+  - /storage/logs/laravel.log
+
+        [2023-06-22 13:02:09] local.DEBUG: select _ from `posts`
+        [2023-06-22 13:02:09] local.DEBUG: select _ from `categories` where `categories`.`id` = ? limit 1 [1]
+        [2023-06-22 13:02:09] local.DEBUG: select _ from `categories` where `categories`.`id` = ? limit 1 [2]
+        [2023-06-22 13:02:09] local.DEBUG: select _ from `categories` where `categories`.`id` = ? limit 1 [3]
+
+- Use Clockwork to debug N+1 problem
+
+  - Repo: https://github.com/itsgoingd/clockwork
+
+  - Installation:
+
+        composer require itsgoingd/clockwork
+
+  - Browser extension
+
+    - [Chrome Web Store](https://chrome.google.com/webstore/detail/clockwork/dmggabnehkmmfmdffgajcflpdjlnoemp)
+    - [Firefox Addons](https://addons.mozilla.org/en-US/firefox/addon/clockwork-dev-tools/)
+
+    ![Clockwork - Database tab](./blog-002/public/images/Clockwork.png)
+
+- Solution for N+1 problem
+
+  - /routes/web.php
+
+        Route::get('/', function () {
+            return view('posts', [
+                'posts' => Post::with('category')->get()
+            ]);
+        });
+
+  - ![Fix N+1 problem](./blog-002/public/images/N%2B1-fix.png)
+
 ## 27. Database Seeding Saves Time
 
 ## 28. Turbo Boost With Factories
