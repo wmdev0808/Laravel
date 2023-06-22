@@ -886,8 +886,6 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 - 3.  Disable mass assignment entirely and then handle the mass assignment in service provider or others
 
-          protected $guarded = [];
-
 ## 23. Route Model Binding
 
 ## 24. Your First Eloquent Relationship
