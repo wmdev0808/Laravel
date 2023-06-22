@@ -1129,6 +1129,68 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 25. Show All Posts Associated With a Category
 
+- About
+
+  Now that we have the concept of a `Category` in our application, let's make a new route that fetches and loads all posts that are associated with the given category.
+
+- Add a new route for fetching all posts belongs to a category
+
+      Route::get('categories/{category}', function (Category $category) {
+          return view('posts', [
+              'posts' => $category->posts
+          ]);
+      });
+
+- Define appropriate relation inside `Category` model
+
+      public function posts()
+      {
+          return $this->hasMany(Post::class);
+      }
+
+- Let's test it in Tinker
+
+      php artisan tinker
+
+      > App\Models\Category::first()
+      = App\Models\Category {#6915
+          id: 1,
+          name: "Personal",
+          slug: "personal",
+          created_at: "2023-06-22 10:09:57",
+          updated_at: "2023-06-22 10:09:57",
+        }
+
+      > App\Models\Category::first()->posts
+      = Illuminate\Database\Eloquent\Collection {#7179
+          all: [
+            App\Models\Post {#6220
+              id: 1,
+              category_id: 1,
+              slug: "my-family-post",
+              title: "My Family Post",
+              excerpt: "Excerpt for my post",
+              body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+              created_at: "2023-06-22 10:15:49",
+              updated_at: "2023-06-22 10:15:49",
+              published_at: null,
+            },
+          ],
+        }
+
+      >
+
+- Now update the views:
+
+      ...
+      <a href="/categories/{{ $post->category->id }}">{{ $post->category->name }}</a>
+
+- We will use `slug` instead of `id`
+
+  - Change views
+
+        <a href="/categories/{{ $post->category->slug }}">{{ $post->category->name }}</a>
+
 ## 26. Clockwork, and the N+1 Problem
 
 ## 27. Database Seeding Saves Time
