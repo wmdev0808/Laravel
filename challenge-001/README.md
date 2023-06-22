@@ -888,6 +888,64 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 23. Route Model Binding
 
+- About
+
+  Laravel's route model binding feature allows us to bind a route wildcard to an Eloquent model instance.
+
+- routes/web.php
+
+      ...
+
+      Route::get('posts/{post}', function ($id) {
+          return view('post', [
+              'post' => Post::findOrFail($id)
+          ]);
+      });
+
+- When you use route model binding, You change rewrite the above code like this:
+
+      Route::get('posts/{post}', function (Post $post) {
+          return view('post', [
+              'post' => $post
+          ]);
+      });
+
+  - It means `$post` will be a Post matching wildcard(post) as its `id`
+
+  - Note
+    - Be sure to match wildcard string(`post`) with argument(`$post`). If they are different, route model binding won't work.
+
+- In /database/migrations/2023_06_20_005430_create_posts_table.php, add the `slug` field:
+
+      $table->string('slug')->unique();
+
+  - Run migration
+
+        php artisan migrate:fresh
+
+- We can rewrite the Route like this:
+
+      Route::get('posts/{post:slug}', function (Post $post) { // Post::where('slug', $post)->firstOrFail()
+          return view('post', [
+              'post' => $post
+          ]);
+      });
+
+- The alternative option is to define `getRouteKeyName` method inside a model
+
+      public function getRouteKeyName()
+      {
+          return 'slug';
+      }
+
+  - routes/web.php
+
+        Route::get('posts/{post}', function (Post $post) {
+            return view('post', [
+                'post' => $post
+            ]);
+        });
+
 ## 24. Your First Eloquent Relationship
 
 ## 25. Show All Posts Associated With a Category
