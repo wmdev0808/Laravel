@@ -1452,6 +1452,178 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 28. Turbo Boost With Factories
 
+- About
+
+  Now that you understand the basics of database seeders, let's integrate model factories in order to seamlessly generate any number of database records.
+
+- Create a new factory for Post model
+
+      php artisan make:factory PostFactory
+
+- /database/factories/PostFactory
+
+      <?php
+
+      namespace Database\Factories;
+
+      use App\Models\Category;
+      use App\Models\User;
+      use Illuminate\Database\Eloquent\Factories\Factory;
+
+      /**
+      * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
+      */
+      class PostFactory extends Factory
+      {
+          /**
+          * Define the model's default state.
+          *
+          * @return array<string, mixed>
+          */
+          public function definition(): array
+          {
+              return [
+                  'user_id' => User::factory(),
+                  'category_id' => Category::factory(),
+                  'title' => fake()->sentence,
+                  'slug' => fake()->slug,
+                  'excerpt' => fake()->sentence,
+                  'body' => fake()->paragraph
+              ];
+          }
+      }
+
+- Create `CategoryFactory`
+
+      php artisan make:factory CategoryFactory
+
+- Run `php artisan migrate:fresh`
+
+- In Tinker
+
+      php artisan tinker
+
+      > App\Models\Post::factory()->create();
+      = App\Models\Post {#6345
+          user_id: 1,
+          category_id: 1,
+          title: "Neque et suscipit eius earum rerum neque.",
+          slug: "ut-sed-dolore-nihil-non-dolores-nostrum",
+          excerpt: "Voluptas asperiores veniam soluta labore.",
+          body: "Rerum tenetur vitae laborum. Doloremque optio autem iusto quo. Non tempore voluptatibus id ex est consequatur suscipit. Facere sequi eius ut blanditiis. Sit rerum veritatis sit qui.",
+          updated_at: "2023-06-22 15:05:10",
+          created_at: "2023-06-22 15:05:10",
+          id: 1,
+        }
+
+      > App\Models\Post::first()
+      = App\Models\Post {#6259
+          id: 1,
+          user_id: 1,
+          category_id: 1,
+          slug: "ut-sed-dolore-nihil-non-dolores-nostrum",
+          title: "Neque et suscipit eius earum rerum neque.",
+          excerpt: "Voluptas asperiores veniam soluta labore.",
+          body: "Rerum tenetur vitae laborum. Doloremque optio autem iusto quo. Non tempore voluptatibus id ex est consequatur suscipit. Facere sequi eius ut blanditiis. Sit rerum veritatis sit qui.",
+          created_at: "2023-06-22 15:05:10",
+          updated_at: "2023-06-22 15:05:10",
+          published_at: null,
+        }
+
+      > App\Models\Post::with('user')->first()
+      = App\Models\Post {#6289
+          id: 1,
+          user_id: 1,
+          category_id: 1,
+          slug: "ut-sed-dolore-nihil-non-dolores-nostrum",
+          title: "Neque et suscipit eius earum rerum neque.",
+          excerpt: "Voluptas asperiores veniam soluta labore.",
+          body: "Rerum tenetur vitae laborum. Doloremque optio autem iusto quo. Non tempore voluptatibus id ex est consequatur suscipit. Facere sequi eius ut blanditiis. Sit rerum veritatis sit qui.",
+          created_at: "2023-06-22 15:05:10",
+          updated_at: "2023-06-22 15:05:10",
+          published_at: null,
+          user: App\Models\User {#6312
+            id: 1,
+            name: "Chyna Considine",
+            email: "nondricka@example.net",
+            email_verified_at: "2023-06-22 15:05:10",
+            #password: "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            #remember_token: "D7VfWjsEPk",
+            created_at: "2023-06-22 15:05:10",
+            updated_at: "2023-06-22 15:05:10",
+          },
+        }
+
+      > App\Models\Post::with('user', 'category')->first()
+      = App\Models\Post {#6293
+          id: 1,
+          user_id: 1,
+          category_id: 1,
+          slug: "ut-sed-dolore-nihil-non-dolores-nostrum",
+          title: "Neque et suscipit eius earum rerum neque.",
+          excerpt: "Voluptas asperiores veniam soluta labore.",
+          body: "Rerum tenetur vitae laborum. Doloremque optio autem iusto quo. Non tempore voluptatibus id ex est consequatur suscipit. Facere sequi eius ut blanditiis. Sit rerum veritatis sit qui.",
+          created_at: "2023-06-22 15:05:10",
+          updated_at: "2023-06-22 15:05:10",
+          published_at: null,
+          user: App\Models\User {#6298
+            id: 1,
+            name: "Chyna Considine",
+            email: "nondricka@example.net",
+            email_verified_at: "2023-06-22 15:05:10",
+            #password: "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            #remember_token: "D7VfWjsEPk",
+            created_at: "2023-06-22 15:05:10",
+            updated_at: "2023-06-22 15:05:10",
+          },
+          category: App\Models\Category {#6306
+            id: 1,
+            name: "amet",
+            slug: "beatae-id-consequuntur-minus-et-quam-consequatur-consequuntur",
+            created_at: "2023-06-22 15:05:10",
+            updated_at: "2023-06-22 15:05:10",
+          },
+        }
+
+      >
+
+- /database/seeders/DatabaseSeeder.php
+
+      ...
+      User::truncate();
+      Category::truncate();
+      Post::truncate();
+
+      Post::factory()->create();
+
+- Run `php artisan db:seed`, then it automatically creates a post and its associated user and category
+
+- Note: Use `truncate` method only if you need refresh data
+
+- /database/seeders/DatabaseSeeder.php
+
+      ...
+      Post::factory(5)->create();
+
+- Run `php artisan migrate:fresh --seed`
+
+- If you want to create the same user
+
+  - .../DatabaseSeeder.php
+
+        ...
+        $user = User::factory()->create([
+            'name' => 'John Doe'
+        ]);
+
+        Post::factory(5)->create([
+            'user_id' => $user->id
+        ]);
+
+- Run `php artisan migrate:fresh --seed`
+
+- Now you can create a user with name `John Doe` and associate it with 5 different posts.
+
 ## 29. View All Posts By An Author
 
 ## 30. Eager Load Relationships on an Existing Model
