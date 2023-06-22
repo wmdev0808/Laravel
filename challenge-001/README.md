@@ -1262,6 +1262,194 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 27. Database Seeding Saves Time
 
+- About
+
+  In this lesson, we'll associate a blog post with a particular author, or user. In the process of adding this, however, we'll yet again run into the issue of needing to manually repopulate our database. This might be a good time to take a few moments to review database seeding. As you'll see, a bit of work up front will save you so much time in the long run.
+
+- Why?
+
+  - When we add a new column, `user_id` as a foreign key into `create_posts_table` migration, we run `php artisan migrate:refresh`, then we lose all of the example data
+
+- /database/seeders/DatabaseSeeder.php
+
+      ...
+      public function run(): void
+      {
+          $user = User::factory()->create();
+
+          // This is only for local development, for production, you are required to create a factory
+          $personal = Category::create([
+              'name' => 'Personal',
+              'slug' => 'personal'
+          ]);
+
+          $family = Category::create([
+              'name' => 'Family',
+              'slug' => 'family'
+          ]);
+
+          $work = Category::create([
+              'name' => 'Work',
+              'slug' => 'work'
+          ]);
+
+          Post::create([
+              'user_id' => $user->id,
+              'category_id' => $family->id,
+              'title' => 'My Family Post',
+              'slug' => 'my-first-post',
+              'excerpt' => 'Lorem ipsum dolar sit amet.',
+              'body' => 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi tempora dolorum cumque eligendi expedita dignissimos, distinctio nostrum ad similique nobis non fuga. Quidem hic quaerat iusto atque repellat illo voluptatum!'
+          ]);
+
+          Post::create([
+              'user_id' => $user->id,
+              'category_id' => $work->id,
+              'title' => 'My Work Post',
+              'slug' => 'my-second-post',
+              'excerpt' => 'Lorem ipsum dolar sit amet.',
+              'body' => 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi tempora dolorum cumque eligendi expedita dignissimos, distinctio nostrum ad similique nobis non fuga. Quidem hic quaerat iusto atque repellat illo voluptatum!'
+          ]);
+      }
+
+- Artisan command to run DB seeder
+
+      php artisan db:seed
+
+- Make `name` and `slug` to unique in the migration for `*_create_categories_table.php`
+
+      $table->string('name')->unique();
+      $table->string('slug')->unique();
+
+- Run db migration freshly and seed altogether
+
+      php artisan migrate:fresh --seed
+
+- When we run `php artisan db:seed` command again, we are getting error related to `Duplicated entry`
+
+  - To fix this, we should add `trancate` method in the head of the seeder
+
+  - /database/seeders/DatabaseSeeder.php
+
+        ...
+        User::truncate();
+        Category::truncate();
+        Post::truncate();
+
+- Define user Eloquent relationship
+
+  - /app/Models/Post.php
+
+        public function user()
+        {
+            return $this->belongsTo(User::class);
+        }
+
+  - /app/Models/User.php (Inverse relationship)
+
+        public function posts() // $user->posts
+        {
+            return $this->hasMany(Post::class);
+        }
+
+- Test in Tinker
+
+      php artisan tinker
+
+      > App\Models\User::first()
+      = App\Models\User {#6959
+          id: 1,
+          name: "Lisette Hauck PhD",
+          email: "vrogahn@example.net",
+          email_verified_at: "2023-06-22 14:06:55",
+          #password: "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+          #remember_token: "6Ps05hQbk4",
+          created_at: "2023-06-22 14:06:55",
+          updated_at: "2023-06-22 14:06:55",
+        }
+
+      > App\Models\User::first()->posts
+      = Illuminate\Database\Eloquent\Collection {#7216
+          all: [
+            App\Models\Post {#6255
+              id: 1,
+              user_id: 1,
+              category_id: 2,
+              slug: "my-first-post",
+              title: "My Family Post",
+              excerpt: "Lorem ipsum dolar sit amet.",
+              body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi tempora dolorum cumque eligendi expedita dignissimos, distinctio nostrum ad similique nobis non fuga. Quidem hic quaerat iusto atque repellat illo voluptatum!",
+              created_at: "2023-06-22 14:06:55",
+              updated_at: "2023-06-22 14:06:55",
+              published_at: null,
+            },
+            App\Models\Post {#6264
+              id: 2,
+              user_id: 1,
+              category_id: 3,
+              slug: "my-second-post",
+              title: "My Work Post",
+              excerpt: "Lorem ipsum dolar sit amet.",
+              body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi tempora dolorum cumque eligendi expedita dignissimos, distinctio nostrum ad similique nobis non fuga. Quidem hic quaerat iusto atque repellat illo voluptatum!",
+              created_at: "2023-06-22 14:06:55",
+              updated_at: "2023-06-22 14:06:55",
+              published_at: null,
+            },
+          ],
+        }
+
+      > App\Models\Post::first()
+      = App\Models\Post {#7225
+          id: 1,
+          user_id: 1,
+          category_id: 2,
+          slug: "my-first-post",
+          title: "My Family Post",
+          excerpt: "Lorem ipsum dolar sit amet.",
+          body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi tempora dolorum cumque eligendi expedita dignissimos, distinctio nostrum ad similique nobis non fuga. Quidem hic quaerat iusto atque repellat illo voluptatum!",
+          created_at: "2023-06-22 14:06:55",
+          updated_at: "2023-06-22 14:06:55",
+          published_at: null,
+        }
+
+      > App\Models\Post::first()->user
+      = App\Models\User {#7224
+          id: 1,
+          name: "Lisette Hauck PhD",
+          email: "vrogahn@example.net",
+          email_verified_at: "2023-06-22 14:06:55",
+          #password: "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+          #remember_token: "6Ps05hQbk4",
+          created_at: "2023-06-22 14:06:55",
+          updated_at: "2023-06-22 14:06:55",
+        }
+
+      > App\Models\Post::with('user')->first()
+      = App\Models\Post {#7215
+          id: 1,
+          user_id: 1,
+          category_id: 2,
+          slug: "my-first-post",
+          title: "My Family Post",
+          excerpt: "Lorem ipsum dolar sit amet.",
+          body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi tempora dolorum cumque eligendi expedita dignissimos, distinctio nostrum ad similique nobis non fuga. Quidem hic quaerat iusto atque repellat illo voluptatum!",
+          created_at: "2023-06-22 14:06:55",
+          updated_at: "2023-06-22 14:06:55",
+          published_at: null,
+          user: App\Models\User {#7230
+            id: 1,
+            name: "Lisette Hauck PhD",
+            email: "vrogahn@example.net",
+            email_verified_at: "2023-06-22 14:06:55",
+            #password: "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            #remember_token: "6Ps05hQbk4",
+            created_at: "2023-06-22 14:06:55",
+            updated_at: "2023-06-22 14:06:55",
+          },
+        }
+
+      >
+
 ## 28. Turbo Boost With Factories
 
 ## 29. View All Posts By An Author

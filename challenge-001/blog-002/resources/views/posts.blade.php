@@ -16,7 +16,7 @@
                 <!-- <?= $post->excerpt ?> -->
                 <!-- <?php echo $post->excerpt ?> -->
                 <!-- In Blade syntax -->
-                {{ $post->excerpt }}
+                {!! $post->excerpt !!}
             </div>
         </article>
     @endforeach
