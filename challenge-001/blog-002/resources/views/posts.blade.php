@@ -8,6 +8,10 @@
                 </a>
             </h1>
 
+            <p>
+                <a href="#">{{ $post->category->name }}</a>
+            </p>
+
             <div>
                 <!-- <?= $post->excerpt ?> -->
                 <!-- <?php echo $post->excerpt ?> -->

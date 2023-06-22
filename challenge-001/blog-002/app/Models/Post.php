@@ -18,4 +18,10 @@ class Post extends Model
     // {
     //     return 'slug';
     // }
+
+    public function category()
+    {
+        // hasOne, hasMany, belongsTo, belongsToMany
+        return $this->belongsTo(Category::class);
+    }
 }

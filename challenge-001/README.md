@@ -948,6 +948,185 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 24. Your First Eloquent Relationship
 
+- About
+
+  Our next job is to figure out how to assign a category to each post. To allow for this, we'll need to create a new Eloquent model and migration to represent a `Category`.
+
+- Create a model with creating corresponding migration too
+
+      php artisan make:model Category -m
+
+- Add columns in /database/migrations/2023_06_22_100042_create_categories_table.php
+
+      $table->string('name');
+      $table->string('slug');
+
+- Add `category_id` column in /database/migrations/2023_06_20_005430_create_posts_table.php
+
+      $table->foreignId('category_id');
+
+- Refresh migration
+
+      php artisan migrate:fresh
+
+- Add data manually using tinker
+
+      php artisan tinker
+
+      > use App\Models\Category;
+      > $c = new Category;
+      = App\Models\Category {#6212}
+
+      > $c->name = 'Personal';
+      = "Personal"
+
+      > $c->slug = 'personal';
+      = "personal"
+
+      > $c->save();
+      = true
+
+      > $c = new Category;
+      = App\Models\Category {#6958}
+
+      > $c->name = 'Work';
+      = "Work"
+
+      > $c->slug = 'work';
+      = "work"
+
+      > $c->save();
+      = true
+
+      > $c = new Category;
+      = App\Models\Category {#6213}
+
+      > $c->name = 'Hobbies';
+      = "Hobbies"
+
+      > $c->slug = 'hobbies';
+      = "hobbies"
+
+      > $c->save();
+      = true
+
+      > use App\Models\Post;
+      > Post::create([
+      . 'title' => 'My Family Post',
+      . 'excerpt' => 'Excerpt for my post',
+      . 'body' => 'Lorem ipsum dolar sit amet.',
+      . 'slug' => 'my-family-post',
+      . 'category_id' => 1
+      . ]);
+      = App\Models\Post {#7183
+          title: "My Family Post",
+          excerpt: "Excerpt for my post",
+          body: "Lorem ipsum dolar sit amet.",
+          slug: "my-family-post",
+          category_id: 1,
+          updated_at: "2023-06-22 10:15:49",
+          created_at: "2023-06-22 10:15:49",
+          id: 1,
+        }
+
+      > Post::create([
+      'title' => 'My Work Post',
+      'excerpt' => 'Excerpt for my post',
+      'body' => 'Lorem ipsum dolar sit amet.',
+      'slug' => 'my-work-post',
+      'category_id' => 2
+      ]);
+      = App\Models\Post {#7188
+          title: "My Work Post",
+          excerpt: "Excerpt for my post",
+          body: "Lorem ipsum dolar sit amet.",
+          slug: "my-work-post",
+          category_id: 2,
+          updated_at: "2023-06-22 10:17:32",
+          created_at: "2023-06-22 10:17:32",
+          id: 2,
+        }
+
+      > Post::create([
+      'title' => 'My Hobby Post',
+      'excerpt' => 'Excerpt for my post',
+      'body' => 'Lorem ipsum dolar sit amet.',
+      'slug' => 'my-hobby-post',
+      'category_id' => 3
+      ]);
+      = App\Models\Post {#6959
+          title: "My Hobby Post",
+          excerpt: "Excerpt for my post",
+          body: "Lorem ipsum dolar sit amet.",
+          slug: "my-hobby-post",
+          category_id: 3,
+          updated_at: "2023-06-22 10:18:16",
+          created_at: "2023-06-22 10:18:16",
+          id: 3,
+        }
+
+      >
+
+- Add relationship method, `category` into `Post` model
+
+      public function category()
+      {
+          // hasOne, hasMany, belongsTo, belongsToMany
+          return $this->belongsTo(Category::class);
+      }
+
+- Now you can get this relationship as a property:
+
+      > php artisan tinker
+      > $post = App\Models\Post::first();
+      = App\Models\Post {#6913
+          id: 1,
+          category_id: 1,
+          slug: "my-family-post",
+          title: "My Family Post",
+          excerpt: "Excerpt for my post",
+          body: "Lorem ipsum dolar sit amet.",
+          created_at: "2023-06-22 10:15:49",
+          updated_at: "2023-06-22 10:15:49",
+          published_at: null,
+        }
+
+      > $post->category
+      = App\Models\Category {#7173
+          id: 1,
+          name: "Personal",
+          slug: "personal",
+          created_at: "2023-06-22 10:09:57",
+          updated_at: "2023-06-22 10:09:57",
+        }
+
+      > $post
+      = App\Models\Post {#6913
+          id: 1,
+          category_id: 1,
+          slug: "my-family-post",
+          title: "My Family Post",
+          excerpt: "Excerpt for my post",
+          body: "Lorem ipsum dolar sit amet.",
+          created_at: "2023-06-22 10:15:49",
+          updated_at: "2023-06-22 10:15:49",
+          published_at: null,
+          category: App\Models\Category {#7173
+            id: 1,
+            name: "Personal",
+            slug: "personal",
+            created_at: "2023-06-22 10:09:57",
+            updated_at: "2023-06-22 10:09:57",
+          },
+        }
+
+      > $post->category->name;
+      = "Personal"
+
+      >
+
+- Now update `posts`, `post` view templates to include the category name
+
 ## 25. Show All Posts Associated With a Category
 
 ## 26. Clockwork, and the N+1 Problem
