@@ -726,6 +726,168 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 22. 3 Ways to Mitigate Mass Assignment Vulnerabilities
 
+- About
+
+  In this lesson, we'll discuss everything you need to know about mass assignment vulnerabilities. As you'll see, Laravel provides a couple ways to specify which attributes may or may not be mass assigned. However, there's a third option at the conclusion of this video that is equally valid.
+
+- In Tinker
+
+      > $post = new Post
+      = App\Models\Post {#7174}
+
+      > $post->title = 'My Third Post';
+      = "My Third Post"
+
+      > $post->excerpt = 'excerpt of post';
+      = "excerpt of post"
+
+      > $post->body = '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemoLorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>';
+      = "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemoLorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>"
+
+      > $post->save();
+      = true
+
+      > Post::all();
+      = Illuminate\Database\Eloquent\Collection {#7179
+          all: [
+            App\Models\Post {#7181
+              id: 1,
+              title: "My Post <script>alert("hello")</script>",
+              excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+              body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+              created_at: "2023-06-20 01:28:16",
+              updated_at: "2023-06-20 09:45:47",
+              published_at: null,
+            },
+            App\Models\Post {#7182
+              id: 2,
+              title: "Eloquent is Amazing",
+              excerpt: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+              body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemoLorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+              created_at: "2023-06-20 09:08:14",
+              updated_at: "2023-06-20 09:34:23",
+              published_at: null,
+            },
+            App\Models\Post {#7183
+              id: 3,
+              title: "My Third Post",
+              excerpt: "excerpt of post",
+              body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemoLorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+              created_at: "2023-06-20 09:55:47",
+              updated_at: "2023-06-20 09:55:47",
+              published_at: null,
+            },
+          ],
+        }
+
+      >
+
+- Mass-Assignment
+
+      > Post::create(['title' => 'My Fourth Post', 'excerpt' => 'excerpt of post', 'body' => '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>']);
+
+        Illuminate\Database\Eloquent\MassAssignmentException  Add [title] to fillable property to allow mass assignment on [App\Models\Post].
+
+      >
+
+- You should now add fields which you want to allow mass assignments into `fillable` property of corresponding model
+
+  - /app/Models/Post.php
+
+        ...
+        protected $fillable = ['title'];
+
+- Run again:
+
+      > Post::create(['title' => 'My Fourth Post', 'excerpt' => 'excerpt of post', 'body' => '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>']);
+
+        Illuminate\Database\QueryException  SQLSTATE[HY000]: General error: 1364 Field 'excerpt' doesn't have a default value (Connection: mysql, SQL: insert into `posts` (`title`, `updated_at`, `created_at`) values (My Fourth Post, 2023-06-20 10:09:59, 2023-06-20 10:09:59)).
+
+      >
+
+  - This is because Laravel allows assignments only on values which are listed in `fillable` property and others will be ignored
+  - So you should list all the fields for mass assignment
+
+        protected $fillable = ['title', 'excerpt', 'body'];
+
+  - Now the mass assignment works
+
+        > Post::create(['title' => 'My Fourth Post', 'excerpt' => 'excerpt of post', 'body' => '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>']);
+        = App\Models\Post {#6217
+            title: "My Fourth Post",
+            excerpt: "excerpt of post",
+            body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+            updated_at: "2023-06-20 10:16:02",
+            created_at: "2023-06-20 10:16:02",
+            id: 4,
+          }
+
+        >
+
+- If you provide `id`, it will also be ignored
+
+      > Post::create(['title' => 'My Fourth Post', 'excerpt' => 'excerpt of post', 'body' => '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>', 'id' => 10000]);
+      = App\Models\Post {#6226
+          title: "My Fourth Post",
+          excerpt: "excerpt of post",
+          body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+          updated_at: "2023-06-20 10:19:15",
+          created_at: "2023-06-20 10:19:15",
+          id: 5,
+        }
+
+      >
+
+- 1.  But if you add `id` into `fillable` list, it will assign that value
+
+      > Post::create(['title' => 'My Fourth Post', 'excerpt' => 'excerpt of post', 'body' => '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>', 'id' => 10000]);
+      > = App\Models\Post {#6220
+
+          title: "My Fourth Post",
+          excerpt: "excerpt of post",
+          body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+          id: 10000,
+          updated_at: "2023-06-20 10:20:57",
+          created_at: "2023-06-20 10:20:57",
+
+      }
+
+      >
+
+- Note: Mass assignment is immediately persisted into database
+
+- These will lead to unexpected update on database, so these are called `mass assignment vulnerability`
+
+- 2. Instead of using `fillable` field, you can also use `guarded` which means it will accept except for ones listed in it
+
+  - app/Models/Post.php
+
+        protected $guarded = ['id'];
+
+  - You need to correct auto increment value on database
+
+        ALTER TABLE blog.posts AUTO_INCREMENT = 5; // 4 is the next id value
+
+  - Run Tinker again:
+
+        php artisan tinker
+
+        > Post::create(['title' => 'My Fourth Post', 'excerpt' => 'excerpt of post', 'body' => '<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>', 'id' => 100000]);
+        = App\Models\Post {#6220
+            title: "My Fourth Post",
+            excerpt: "excerpt of post",
+            body: "<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam blanditiis alias a deleniti aliquam sed exercitationem natus, consequuntur reiciendis amet excepturi labore vero voluptatibus, voluptate debitis? Labore id nemo</p>",
+            updated_at: "2023-06-20 10:51:56",
+            created_at: "2023-06-20 10:51:56",
+            id: 5,
+          }
+
+        >
+
+- 3.  Disable mass assignment entirely and then handle the mass assignment in service provider or others
+
+          protected $guarded = [];
+
 ## 23. Route Model Binding
 
 ## 24. Your First Eloquent Relationship

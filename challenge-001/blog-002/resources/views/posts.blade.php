@@ -4,7 +4,7 @@
         <article class="{{ $loop->even ? 'foobar' : '' }}">
             <h1>
                 <a href="/posts/{{ $post->id }}">
-                    {{ $post->title }}
+                    {!! $post->title !!}
                 </a>
             </h1>
 
@@ -12,7 +12,7 @@
                 <!-- <?= $post->excerpt ?> -->
                 <!-- <?php echo $post->excerpt ?> -->
                 <!-- In Blade syntax -->
-                {{ $post->title }}
+                {{ $post->excerpt }}
             </div>
         </article>
     @endforeach
