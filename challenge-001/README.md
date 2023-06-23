@@ -1941,6 +1941,30 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 34. A Small JavaScript Dropdown Detour
 
+- About
+
+  We next need to make that "Categories" dropdown on the home page function as expected. I hate to break it to you, but we'll need to reach for a bit of JavaScript to make this work. Don't worry: I'll make this as painless as possible by pulling in the excellent [Alpine.js library](https://github.com/alpinejs/alpine). Let's get through this, and we'll jump back into some Laravel-specific topics!
+
+- Bind all categories into `Catetory` dropdown, but we want to navigate to `posts by category` page when selecting a category.
+
+- Install `Alpine.js`
+
+      <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+- Alpine fundamentals to build a dropdown
+
+  ```html
+  <div x-data="{ show: false }">
+    <button @click="show = !show">Categories</button>
+
+    <div x-show="show">
+      <a href="#" class="block">One</a>
+      <a href="#" class="block">Two</a>
+      <a href="#" class="block">Three</a>
+    </div>
+  </div>
+  ```
+
 ## 35. How to Extract a Dropdown Blade Component
 
 ## 36. Quick Tweaks and Clean-Up
