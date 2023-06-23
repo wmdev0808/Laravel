@@ -1626,6 +1626,101 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 29. View All Posts By An Author
 
+- About
+
+  Now that we can associate a blog post with an author, the next obvious step is to create a new route that renders all blog posts written by a particular author.
+
+- Create a new post
+
+      php artisan tinker
+
+      > App\Models\Post::factory()->create()
+
+      = App\Models\Post {#7324
+          user_id: 2,
+          category_id: 6,
+          title: "Similique a quis at debitis tempora et.",
+          slug: "fuga-aut-ut-quo-illo-dolores",
+          excerpt: "Ut earum ratione voluptatum sunt doloremque.",
+          body: "Odio velit porro consequatur omnis odit debitis dolore. Beatae odio praesentium harum. Perspiciatis ut ea dolor minus a quis rerum ea.",
+          updated_at: "2023-06-23 00:36:55",
+          created_at: "2023-06-23 00:36:55",
+          id: 6,
+        }
+
+      >
+
+- Order posts by desc
+
+  - /routes/web.php
+
+        Route::get('/', function () {
+            return view('posts', [
+                'posts' => Post::latest()->with('category')->get()
+            ]);
+        });
+
+- Change `user` relationship to `author` in `Post` model
+
+  - app/Models/Post.php
+
+        public function author()
+        {
+            // Assume foreign key is `author_id`, but db column is `user_id`, you should pass `user_id` as a foreign key
+            return $this->belongsTo(User::class, 'user_id');
+        }
+
+- Eagerly load authors in `/` route
+
+  - routes/web.php
+
+        Route::get('/', function () {
+            // You can pass a column to latest() like latest('published_at')
+            return view('posts', [
+                // 'posts' => Post::latest()->with('category', 'author')->get()
+                // You can also use an array as the argument
+                'posts' => Post::latest()->with(['category', 'author'])->get()
+            ]);
+        });
+
+- Create a new route for posts by an author
+
+      Route::get('authors/{author}', function (User $author) {
+          return view('posts', [
+              'posts' => $author->posts
+          ]);
+      });
+
+- Update views to include the links to the route
+
+      By <a href="/authors/{{ $post->author->id }}">{{ $post->author->name }}</a> in <a href="/categories/{{ $post->category->slug }}">{{ $post->category->name }}</a>
+
+- Now we want to use `username` instead of `id`, we update the migration for `create_users_table`
+
+      $table->string('username')->unique();
+
+- Update User factory in UserFactory.php
+
+      'username' => fake()->unique()->userName,
+
+- Run migration
+
+      php artisan migrate:fresh --seed
+
+- Change links in views
+
+      <p>
+          By <a href="/authors/{{ $post->author->username }}">{{ $post->author->name }}</a> in <a href="/categories/{{ $post->category->slug }}">{{ $post->category->name }}</a>
+      </p>
+
+- Change route model binding to accept `username` as the key
+
+      Route::get('authors/{author:username}', function (User $author) {
+          return view('posts', [
+              'posts' => $author->posts
+          ]);
+      });
+
 ## 30. Eager Load Relationships on an Existing Model
 
 # 5. Integrate the Design
