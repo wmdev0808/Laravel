@@ -1923,6 +1923,18 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 32. Blade Components and CSS Grids
 
+- About
+
+  We're making great progress. Let's continue the conversion in this episode, as we take a break from Laravel to play around with CSS grids.
+
+- If we don't have any posts on the database, we are getting errors
+
+  - To fix this using @if in `posts` view
+
+- We can use `$loop` for more controll on iteration
+
+      @dd($loop)
+
 ## 33. Convert the Blog Post Page
 
 ## 34. A Small JavaScript Dropdown Detour
