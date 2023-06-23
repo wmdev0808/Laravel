@@ -1723,6 +1723,177 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 30. Eager Load Relationships on an Existing Model
 
+- About
+
+  In this episode, you'll learn how to specify which relationships should be eager loaded by default on a model. We'll also touch on the pros and cons of such an approach.
+
+- When you navigate to posts by category page
+
+  ![](./blog-002/public/images/posts_by_category.png)
+
+- Create more posts belong to that category
+
+      php artisan tinker
+
+      > App\Models\Post::factory(10)->create(['category_id' => 1]);
+      = Illuminate\Database\Eloquent\Collection {#6298
+          all: [
+            App\Models\Post {#6319
+              user_id: 2,
+              category_id: 1,
+              title: "Nihil nisi dolorem ducimus aut nihil.",
+              slug: "deserunt-soluta-et-exercitationem-inventore",
+              excerpt: "Expedita enim ut voluptatibus eum ipsa occaecati.",
+              body: "Consequatur atque exercitationem voluptas qui quod qui nihil. Fugiat fuga atque eos aperiam porro maxime maiores et. Voluptas accusantium impedit vel aliquam omnis nihil. Quas fugit facilis velit commodi.",
+              updated_at: "2023-06-23 01:31:14",
+              created_at: "2023-06-23 01:31:14",
+              id: 6,
+            },
+            App\Models\Post {#6324
+              user_id: 3,
+              category_id: 1,
+              title: "Est nesciunt libero molestiae itaque.",
+              slug: "et-molestiae-sit-suscipit-et",
+              excerpt: "Aut consequatur voluptatem quam sint odio qui in.",
+              body: "Alias minima et vel cumque quas. Voluptas quasi quia est ut est odio. Sapiente est iure hic sapiente praesentium nemo.",
+              updated_at: "2023-06-23 01:31:14",
+              created_at: "2023-06-23 01:31:14",
+              id: 7,
+            },
+            ...
+
+- Observe N+1 problem on posts by category page
+
+  ![](./blog-002/public/images/posts_by_category_n%2B1_problem.png)
+
+- To fix this, eagerly load `category`, `author` in /routes/web.php
+
+      Route::get('categories/{category:slug}', function (Category $category) {
+          return view('posts', [
+              'posts' => $category->posts->load(['category', 'author'])
+          ]);
+      });
+
+      Route::get('authors/{author:username}', function (User $author) {
+          return view('posts', [
+              'posts' => $author->posts->load(['category', 'author'])
+          ]);
+      });
+
+  ![](./blog-002/public/images/posts_by_category_n%2B1_problem_fix.png)
+
+- Adding earger loading on each routes is tedious, so we add them in models themselves so they are also loaded by default
+
+- app/Models/Post
+
+      ...
+      protected $with = ['category', 'author'];
+
+- Now remove eager loadings from route definitions
+
+- Check in Tinker
+
+      php artisan tinker
+
+      > App\Models\Post::take(2)->get()
+      = Illuminate\Database\Eloquent\Collection {#7236
+          all: [
+            App\Models\Post {#7229
+              id: 1,
+              user_id: 1,
+              category_id: 1,
+              slug: "vel-voluptatum-iste-cumque-ipsam-quod-ut-voluptate-expedita",
+              title: "Quam voluptatem libero maxime tempora iste iusto quidem.",
+              excerpt: "Consectetur sit blanditiis voluptate voluptatem libero magnam voluptatum.",
+              body: "Omnis molestias veritatis facilis consectetur sed earum ex eligendi. Quo quis aliquid ut molestiae corporis ad. Quia amet dolorum facilis et. Est et qui laborum ducimus eaque. Enim tenetur consequatur unde a quia et aliquid.",
+              created_at: "2023-06-23 01:18:08",
+              updated_at: "2023-06-23 01:18:08",
+              published_at: null,
+              category: App\Models\Category {#7241
+                id: 1,
+                name: "rem",
+                slug: "harum-voluptas-rerum-aut-quis",
+                created_at: "2023-06-23 01:18:08",
+                updated_at: "2023-06-23 01:18:08",
+              },
+              author: App\Models\User {#7234
+                id: 1,
+                username: "JohnDoe",
+                name: "John Doe",
+                email: "swift.buford@example.net",
+                email_verified_at: "2023-06-23 01:18:08",
+                #password: "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+                #remember_token: "id9D5ou0Uh",
+                created_at: "2023-06-23 01:18:08",
+                updated_at: "2023-06-23 01:18:08",
+              },
+            },
+            App\Models\Post {#7230
+              id: 2,
+              user_id: 1,
+              category_id: 2,
+              slug: "facilis-consequuntur-dolore-esse-pariatur-quia-illum",
+              title: "Tempora omnis sit nam odio nemo voluptatem.",
+              excerpt: "Velit eum ut sit vitae mollitia quo.",
+              body: "Nihil et a delectus beatae nisi. Rem qui eos consequuntur. Autem fugiat ea officiis quia illum quaerat. Consequatur culpa saepe et ea quaerat quia ut tempora.",
+              created_at: "2023-06-23 01:18:08",
+              updated_at: "2023-06-23 01:18:08",
+              published_at: null,
+              category: App\Models\Category {#7239
+                id: 2,
+                name: "aut",
+                slug: "voluptas-numquam-at-nihil-et-molestiae-consequuntur",
+                created_at: "2023-06-23 01:18:08",
+                updated_at: "2023-06-23 01:18:08",
+              },
+              author: App\Models\User {#7234},
+            },
+          ],
+        }
+
+- If you don't want to eagerly load a relationship, use `without()` method
+
+      > php artisan tinker
+
+      > App\Models\Post::without('author')->first()
+      = App\Models\Post {#7232
+          id: 1,
+          user_id: 1,
+          category_id: 1,
+          slug: "vel-voluptatum-iste-cumque-ipsam-quod-ut-voluptate-expedita",
+          title: "Quam voluptatem libero maxime tempora iste iusto quidem.",
+          excerpt: "Consectetur sit blanditiis voluptate voluptatem libero magnam voluptatum.",
+          body: "Omnis molestias veritatis facilis consectetur sed earum ex eligendi. Quo quis aliquid ut molestiae corporis ad. Quia amet dolorum facilis et. Est et qui laborum ducimus eaque. Enim tenetur consequatur unde a quia et aliquid.",
+          created_at: "2023-06-23 01:18:08",
+          updated_at: "2023-06-23 01:18:08",
+          published_at: null,
+          category: App\Models\Category {#7259
+            id: 1,
+            name: "rem",
+            slug: "harum-voluptas-rerum-aut-quis",
+            created_at: "2023-06-23 01:18:08",
+            updated_at: "2023-06-23 01:18:08",
+          },
+        }
+
+      > App\Models\Post::without(['author', 'category'])->first()
+      = App\Models\Post {#7256
+          id: 1,
+          user_id: 1,
+          category_id: 1,
+          slug: "vel-voluptatum-iste-cumque-ipsam-quod-ut-voluptate-expedita",
+          title: "Quam voluptatem libero maxime tempora iste iusto quidem.",
+          excerpt: "Consectetur sit blanditiis voluptate voluptatem libero magnam voluptatum.",
+          body: "Omnis molestias veritatis facilis consectetur sed earum ex eligendi. Quo quis aliquid ut molestiae corporis ad. Quia amet dolorum facilis et. Est et qui laborum ducimus eaque. Enim tenetur consequatur unde a quia et aliquid.",
+          created_at: "2023-06-23 01:18:08",
+          updated_at: "2023-06-23 01:18:08",
+          published_at: null,
+        }
+
+      >
+
+- Another method would be to never append to the `$with` property and instead extract a repository or special helper method that is responsible for grabbing your posts, applying filters and eager loading relationships.
+
 # 5. Integrate the Design
 
 ## 31. Convert the HTML and CSS to Blade

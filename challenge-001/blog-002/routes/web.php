@@ -21,7 +21,7 @@ Route::get('/', function () {
     return view('posts', [
         // 'posts' => Post::latest()->with('category', 'author')->get()
         // You can also use an array as the argument
-        'posts' => Post::latest()->with(['category', 'author'])->get()
+        'posts' => Post::latest()->get()
     ]);
 });
 
