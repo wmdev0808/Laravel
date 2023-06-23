@@ -48,6 +48,23 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
         php artisan serve --host=0.0.0.0
         ```
 
+- VS code setup
+
+  - Install `Laravel Blade Snippets`
+
+    - settings.json
+
+      ```json
+      "files.associations": {
+        "*.blade.php": "html"
+      },
+      "blade.format.enable": true,
+      "emmet.triggerExpansionOnTab": true,
+      "[blade]": {
+        "editor.autoClosingBrackets": "always"
+      }
+      ```
+
 ## 03. The Laravel Installer Tool
 
 - About
@@ -1246,7 +1263,7 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
     - [Chrome Web Store](https://chrome.google.com/webstore/detail/clockwork/dmggabnehkmmfmdffgajcflpdjlnoemp)
     - [Firefox Addons](https://addons.mozilla.org/en-US/firefox/addon/clockwork-dev-tools/)
 
-    ![Clockwork - Database tab](./blog-002/public/images/Clockwork.png)
+    ![Clockwork - Database tab](./blog-002/public/images/readme/Clockwork.png)
 
 - Solution for N+1 problem
 
@@ -1258,7 +1275,7 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
             ]);
         });
 
-  - ![Fix N+1 problem](./blog-002/public/images/N%2B1-fix.png)
+  - ![Fix N+1 problem](./blog-002/public/images/readme/N%2B1-fix.png)
 
 ## 27. Database Seeding Saves Time
 
@@ -1729,7 +1746,7 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 - When you navigate to posts by category page
 
-  ![](./blog-002/public/images/posts_by_category.png)
+  ![](./blog-002/public/images/readme/posts_by_category.png)
 
 - Create more posts belong to that category
 
@@ -1764,7 +1781,7 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 - Observe N+1 problem on posts by category page
 
-  ![](./blog-002/public/images/posts_by_category_n%2B1_problem.png)
+  ![](./blog-002/public/images/readme/posts_by_category_n%2B1_problem.png)
 
 - To fix this, eagerly load `category`, `author` in /routes/web.php
 
@@ -1780,7 +1797,7 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
           ]);
       });
 
-  ![](./blog-002/public/images/posts_by_category_n%2B1_problem_fix.png)
+  ![](./blog-002/public/images/readme/posts_by_category_n%2B1_problem_fix.png)
 
 - Adding earger loading on each routes is tedious, so we add them in models themselves so they are also loaded by default
 
@@ -1897,6 +1914,12 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 # 5. Integrate the Design
 
 ## 31. Convert the HTML and CSS to Blade
+
+- About
+
+  - I think we're ready to begin constructing the actual blog design for this series. **As discussed in episode four**, I've already written the base HTML and CSS. That means we only need to [download it from GitHub](https://github.com/laracasts/Laravel-From-Scratch-HTML-CSS), and begin migrating it to our Laravel application. As part of this, we'll prepare the layout file and extract a handful of Blade components.
+
+  - Extra Credit: Consider watching the optional [HTML and CSS Workflow](https://laracasts.com/series/html-and-css-workshop) prerequisite series, where we write the HTML and CSS that is referenced in this chapter.
 
 ## 32. Blade Components and CSS Grids
 
