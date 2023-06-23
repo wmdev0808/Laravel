@@ -52,16 +52,14 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
   - Install `Laravel Blade Snippets`
 
+  - Install `Laravel Blade formatter`
+
     - settings.json
 
       ```json
-      "files.associations": {
-        "*.blade.php": "html"
-      },
-      "blade.format.enable": true,
-      "emmet.triggerExpansionOnTab": true,
+      "bladeFormatter.format.noMultipleEmptyLines": true,
       "[blade]": {
-        "editor.autoClosingBrackets": "always"
+        "editor.defaultFormatter": "shufo.vscode-blade-formatter"
       }
       ```
 
@@ -1936,6 +1934,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
       @dd($loop)
 
 ## 33. Convert the Blog Post Page
+
+- About
+
+  With the home page in reasonably good shape, let's now move on to the "view blog post" page and get that up and running.
 
 ## 34. A Small JavaScript Dropdown Detour
 
