@@ -1967,6 +1967,29 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 35. How to Extract a Dropdown Blade Component
 
+- About
+
+  We've now successfully built the basic functionality for a dropdown menu, but it's not yet reusable. To remedy this, let's extract an `x-dropdown` Blade component. This will come with the side effect of isolating all Alpine-specific code to that single component file.
+
+- From 9.x, you can use named slot shorthand
+
+  - 8.x
+
+        <x-slot name="trigger"></x-slot>
+
+  - 9.x, 10.x
+
+        <x-slot:trigger></x-slot>
+
+- Named route
+
+      Route::get('/', function () {
+          return view('posts', [
+              'posts' => Post::latest()->get(),
+              'categories' => Category::all()
+          ]);
+      })->name('home');
+
 ## 36. Quick Tweaks and Clean-Up
 
 # 6. Search
