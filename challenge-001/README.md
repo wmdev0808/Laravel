@@ -1992,6 +1992,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 36. Quick Tweaks and Clean-Up
 
+- About
+
+  We're about to move on to the search functionality, but before we do that, let's take five minutes to do some quick clean up.
+
 # 6. Search
 
 ## 37. Search (The Messy Way)
