@@ -2000,6 +2000,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 37. Search (The Messy Way)
 
+- About
+
+  In this new section, we'll implement the search functionality for our blog. I'm going to demonstrate this in two steps. First, in this video, we'll simply get it to work. The code won't be reusable or pretty, but it'll work! Then, in the following episode, we can refactor a bit.
+
 ## 38. Search (The Cleaner Way)
 
 # 7. Filtering
