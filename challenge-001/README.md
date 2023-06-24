@@ -2262,6 +2262,88 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 39. Advanced Eloquent Query Constraints
 
+- About
+
+  Let's keep playing with our Post model's filter() query scope. Maybe we can additionally filter posts according to their category. If we take this approach, we'll then have a powerful way of combining filters. For example, "_give me all posts, written by such-and-such author, that are within the given category, and include the following search text._"
+
+- SQL behind `whereHas`
+
+  ```sql
+  SELECT
+      *
+  FROM
+      posts
+  WHERE
+      EXISTS( SELECT
+              *
+          FROM
+              categories
+          WHERE
+              categories.id = posts.category_id
+                  AND categories.slug = 'xxx')
+  ```
+
+- Suppose that we are sending `category` as a query param, we'd like to deal with the URI such as `/?category=culpa-quia-vero-sint-quo&search=Soluta`
+
+- Querying Relationship Existence
+
+  - When retrieving model records, you may wish to limit your results based on the existence of a relationship. For example, imagine you want to retrieve all blog posts that have at least one comment. To do so, you may pass the name of the relationship to the `has` and `orHas` methods:
+
+    ```php
+    use App\Models\Post;
+
+    // Retrieve all posts that have at least one comment...
+    $posts = Post::has('comments')->get();
+    ```
+
+  - You may also specify an operator and count value to further customize the query:
+
+    ```php
+    // Retrieve all posts that have three or more comments...
+    $posts = Post::has('comments', '>=', 3)->get();
+    ```
+
+  - Nested `has` statements may be constructed using "dot" notation. For example, you may retrieve all posts that have at least one comment that has at least one image:
+
+    ```php
+    // Retrieve posts that have at least one comment with images...
+    $posts = Post::has('comments.images')->get();
+    ```
+
+  - If you need even more power, you may use the `whereHas` and `orWhereHas` methods to define additional query constraints on your `has` queries, such as inspecting the content of a comment:
+
+    ```php
+    use Illuminate\Database\Eloquent\Builder;
+
+    // Retrieve posts with at least one comment containing words like code%...
+    $posts = Post::whereHas('comments', function (Builder $query) {
+        $query->where('content', 'like', 'code%');
+    })->get();
+
+    // Retrieve posts with at least ten comments containing words like code%...
+    $posts = Post::whereHas('comments', function (Builder $query) {
+        $query->where('content', 'like', 'code%');
+    }, '>=', 10)->get();
+    ```
+
+  - Inline Relationship Existence Queries
+
+    - If you would like to query for a relationship's existence with a single, simple where condition attached to the relationship query, you may find it more convenient to use the `whereRelation`, `orWhereRelation`, `whereMorphRelation`, and `orWhereMorphRelation` methods. For example, we may query for all posts that have unapproved comments:
+
+      ```php
+      use App\Models\Post;
+
+      $posts = Post::whereRelation('comments', 'is_approved', false)->get();
+      ```
+
+    - Of course, like calls to the query builder's `where` method, you may also specify an operator:
+
+      ```php
+      $posts = Post::whereRelation(
+          'comments', 'created_at', '>=', now()->subHour()
+      )->get();
+      ```
+
 ## 40. Extract a Category Dropdown Blade Component
 
 ## 41. Author Filtering
