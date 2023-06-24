@@ -2006,6 +2006,258 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 38. Search (The Cleaner Way)
 
+- About
+
+  Now that our search form is working, we can take a few moments to refactor the code into something more pleasing to the eye (and reusable). In this episode, not only will we finally have a look at controller classes, but we'll also learn about Eloquent query scopes.
+
+### Controllers
+
+- Introduction
+
+  - Instead of defining all of your request handling logic as closures in your route files, you may wish to organize this behavior using "controller" classes. Controllers can group related request handling logic into a single class. For example, a `UserController` class might handle all incoming requests related to users, including showing, creating, updating, and deleting users. By default, controllers are stored in the `app/Http/Controllers` directory.
+
+- Writing Controllers
+
+  - Basic Controllers
+
+        php artisan make:controller UserController
+
+    - A controller may have any number of public methods which will respond to incoming HTTP requests:
+
+    ```php
+    <?php
+
+    namespace App\Http\Controllers;
+
+    use App\Models\User;
+    use Illuminate\View\View;
+
+    class UserController extends Controller
+    {
+        /**
+        * Show the profile for a given user.
+        */
+        public function show(string $id): View
+        {
+            return view('user.profile', [
+                'user' => User::findOrFail($id)
+            ]);
+        }
+    }
+    ```
+
+    - Once you have written a controller class and method, you may define a route to the controller method like so:
+
+    ```php
+    use App\Http\Controllers\UserController;
+
+    Route::get('/user/{id}', [UserController::class, 'show']);
+    ```
+
+    - When an incoming request matches the specified route URI, the `show` method on the` App\Http\Controllers\UserController` class will be invoked and the route parameters will be passed to the method.
+
+    - Controllers are not **required** to extend a base class. However, you will not have access to convenient features such as the `middleware` and `authorize` methods.
+
+### Query Scopes
+
+- Global Scopes
+
+  - Global scopes allow you to add constraints to all queries for a given model. Laravel's own `soft delete` functionality utilizes global scopes to only retrieve "non-deleted" models from the database. Writing your own global scopes can provide a convenient, easy way to make sure every query for a given model receives certain constraints.
+
+  - Generating Scopes
+
+    - To generate a new global scope, you may invoke the make:scope Artisan command, which will place the generated scope in your application's `app/Models/Scopes` directory:
+
+          php artisan make:scope AncientScope
+
+  - Writing Global Scopes
+
+    ```php
+    <?php
+
+    namespace App\Models\Scopes;
+
+    use Illuminate\Database\Eloquent\Builder;
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Scope;
+
+    class AncientScope implements Scope
+    {
+        /**
+        * Apply the scope to a given Eloquent query builder.
+        */
+        public function apply(Builder $builder, Model $model): void
+        {
+            $builder->where('created_at', '<', now()->subYears(2000));
+        }
+    }
+    ```
+
+    - If your global scope is adding columns to the select clause of the query, you should use the `addSelect` method instead of `select`. This will prevent the unintentional replacement of the query's existing select clause.
+
+  - Applying Global Scopes
+
+    ```php
+    <?php
+
+    namespace App\Models;
+
+    use App\Models\Scopes\AncientScope;
+    use Illuminate\Database\Eloquent\Model;
+
+    class User extends Model
+    {
+        /**
+        * The "booted" method of the model.
+        */
+        protected static function booted(): void
+        {
+            static::addGlobalScope(new AncientScope);
+        }
+    }
+    ```
+
+    - After adding the scope in the example above to the `App\Models\User` model, a call to the `User::all()` method will execute the following SQL query:
+
+      ```sql
+      select * from `users` where `created_at` < 0021-02-18 00:00:00
+      ```
+
+  - Anonymous Global Scopes
+
+    ```php
+    <?php
+
+    namespace App\Models;
+
+    use Illuminate\Database\Eloquent\Builder;
+    use Illuminate\Database\Eloquent\Model;
+
+    class User extends Model
+    {
+        /**
+        * The "booted" method of the model.
+        */
+        protected static function booted(): void
+        {
+            static::addGlobalScope('ancient', function (Builder $builder) {
+                $builder->where('created_at', '<', now()->subYears(2000));
+            });
+        }
+    }
+    ```
+
+  - Removing Global Scopes
+
+    ```php
+    User::withoutGlobalScope(AncientScope::class)->get();
+    ```
+
+    - Or, if you defined the global scope using a closure, you should pass the string name that you assigned to the global scope:
+
+      ```php
+      User::withoutGlobalScope('ancient')->get();
+      ```
+
+    - If you would like to remove several or even all of the query's global scopes, you may use the `withoutGlobalScopes` method:
+
+      ```php
+      // Remove all of the global scopes...
+      User::withoutGlobalScopes()->get();
+
+      // Remove some of the global scopes...
+      User::withoutGlobalScopes([
+          FirstScope::class, SecondScope::class
+      ])->get();
+      ```
+
+- Local Scopes
+
+  - Local scopes allow you to define common sets of query constraints that you may easily re-use throughout your application. For example, you may need to frequently retrieve all users that are considered "popular". To define a scope, prefix an Eloquent model method with `scope`.
+
+  - Scopes should always return the same **query** builder instance or `void`:
+
+    ```php
+    <?php
+
+    namespace App\Models;
+
+    use Illuminate\Database\Eloquent\Builder;
+    use Illuminate\Database\Eloquent\Model;
+
+    class User extends Model
+    {
+        /**
+        * Scope a query to only include popular users.
+        */
+        public function scopePopular(Builder $query): void
+        {
+            $query->where('votes', '>', 100);
+        }
+
+        /**
+        * Scope a query to only include active users.
+        */
+        public function scopeActive(Builder $query): void
+        {
+            $query->where('active', 1);
+        }
+    }
+    ```
+
+  - Utilizing A Local Scope
+
+    - Once the scope has been defined, you may call the scope methods when querying the model. However, you should not include the `scope` prefix when calling the method. You can even chain calls to various scopes:
+
+      ```php
+      use App\Models\User;
+
+      $users = User::popular()->active()->orderBy('created_at')->get();
+      ```
+
+    - Combining multiple Eloquent model scopes via an `or` query operator may require the use of closures to achieve the correct `logical grouping`:
+
+      ```php
+      $users = User::popular()->orWhere(function (Builder $query) {
+          $query->active();
+      })->get();
+      ```
+
+    - However, since this can be cumbersome, Laravel provides a "higher order" `orWhere` method that allows you to fluently chain scopes together without the use of closures:
+
+    ```php
+    $users = User::popular()->orWhere->active()->get();
+    ```
+
+  - Dynamic Scopes
+
+    - Sometimes you may wish to define a scope that accepts parameters. To get started, just add your additional parameters to your scope method's signature. Scope parameters should be defined after the `$query` parameter:
+
+      ```php
+      <?php
+
+      namespace App\Models;
+
+      use Illuminate\Database\Eloquent\Model;
+
+      class User extends Model
+      {
+          /**
+          * Scope a query to only include users of a given type.
+          */
+          public function scopeOfType(Builder $query, string $type): void
+          {
+              $query->where('type', $type);
+          }
+      }
+      ```
+
+    - Once the expected arguments have been added to your scope method's signature, you may pass the arguments when calling the scope:
+
+      ```php
+      $users = User::ofType('admin')->get();
+      ```
+
 # 7. Filtering
 
 ## 39. Advanced Eloquent Query Constraints
