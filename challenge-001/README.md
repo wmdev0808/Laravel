@@ -2346,6 +2346,347 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 40. Extract a Category Dropdown Blade Component
 
+- About
+
+  Have you noticed that each route needs to pass a collection of categories to the `posts` view? If you take a look, that variable is only ever referenced as part of the main category dropdown. So with that in mind, what if we created a dedicated `x-category-dropdown` component that could be responsible for fetching any data that the dropdown requires? Let's figure out how to allow for that in this episode.
+
+### Blade Templates
+
+#### Components
+
+- Components and slots provide similar benefits to sections, layouts, and includes; however, some may find the mental model of components and slots easier to understand. There are two approaches to writing components: class based components and anonymous components.
+
+- To create a class based component, you may use the `make:component` Artisan command. To illustrate how to use components, we will create a simple Alert component. The `make:component` command will place the component in the `app/View/Components` directory:
+
+      php artisan make:component Alert
+
+  - The `make:component` command will also create a view template for the component. The view will be placed in the `resources/views/components` directory. When writing components for your own application, components are automatically discovered within the `app/View/Components` directory and `resources/views/components` directory, so no further component registration is typically required.
+
+- You may also create components within subdirectories:
+
+      php artisan make:component Forms/Input
+
+  - The command above will create an `Input` component in the `app/View/Components/Forms` directory and the view will be placed in the `resources/views/components/forms` directory.
+
+- If you would like to create an anonymous component (a component with only a Blade template and no class), you may use the `--view` flag when invoking the `make:component` command:
+
+      php artisan make:component forms.input --view
+
+  - The command above will create a Blade file at `resources/views/components/forms/input.blade.php` which can be rendered as a component via `<x-forms.input />`.
+
+- Rendering Components
+
+  - To display a component, you may use a Blade component tag within one of your Blade templates. Blade component tags start with the string `x-` followed by the kebab case name of the component class:
+
+    ```php
+    <x-alert/>
+
+    <x-user-profile/>
+    ```
+
+  - If the component class is nested deeper within the `app/View/Components` directory, you may use the `.` character to indicate directory nesting. For example, if we assume a component is located at `app/View/Components/Inputs/Button.php`, we may render it like so:
+
+    ```php
+    <x-inputs.button/>
+    ```
+
+  - If you would like to conditionally render your component, you may define a `shouldRender` method on your component class. If the `shouldRender` method returns `false` the component will not be rendered:
+
+    ```php
+    use Illuminate\Support\Str;
+
+    /**
+    * Whether the component should be rendered
+    */
+    public function shouldRender(): bool
+    {
+        return Str::length($this->message) > 0;
+    }
+    ```
+
+- Passing Data To Components
+
+  - You may pass data to Blade components using HTML attributes. Hard-coded, primitive values may be passed to the component using simple HTML attribute strings. PHP expressions and variables should be passed to the component via attributes that use the `:` character as a prefix:
+
+    ```php
+    <x-alert type="error" :message="$message"/>
+    ```
+
+  - You should define all of the component's data attributes in its class constructor. All public properties on a component will automatically be made available to the component's view. It is not necessary to pass the data to the view from the component's `render` method:
+
+    ```php
+    <?php
+
+    namespace App\View\Components;
+
+    use Illuminate\View\Component;
+    use Illuminate\View\View;
+
+    class Alert extends Component
+    {
+        /**
+        * Create the component instance.
+        */
+        public function __construct(
+            public string $type,
+            public string $message,
+        ) {}
+
+        /**
+        * Get the view / contents that represent the component.
+        */
+        public function render(): View
+        {
+            return view('components.alert');
+        }
+    }
+    ```
+
+  - When your component is rendered, you may display the contents of your component's public variables by echoing the variables by name:
+
+    ```php
+    <div class="alert alert-{{ $type }}">
+        {{ $message }}
+    </div>
+    ```
+
+  - Casing
+
+    - Component constructor arguments should be specified using `camelCase`, while `kebab-case` should be used when referencing the argument names in your HTML attributes. For example, given the following component constructor:
+
+      ```php
+      /**
+       * Create the component instance.
+      */
+      public function __construct(
+          public string $alertType,
+      ) {}
+      ```
+
+    - The `$alertType` argument may be provided to the component like so:
+
+      ```php
+      <x-alert alert-type="danger" />
+      ```
+
+  - Short Attribute Syntax
+
+    - When passing attributes to components, you may also use a "short attribute" syntax. This is often convenient since attribute names frequently match the variable names they correspond to:
+
+      ```php
+      {{-- Short attribute syntax... --}}
+      <x-profile :$userId :$name />
+
+      {{-- Is equivalent to... --}}
+      <x-profile :user-id="$userId" :name="$name" />
+      ```
+
+  - Escaping Attribute Rendering
+
+    - Since some JavaScript frameworks such as Alpine.js also use colon-prefixed attributes, you may use a double colon (`::`) prefix to inform Blade that the attribute is not a PHP expression. For example, given the following component:
+
+      ```php
+      <x-button ::class="{ danger: isDeleting }">
+          Submit
+      </x-button>
+      ```
+
+    - The following HTML will be rendered by Blade:
+
+      ````php
+      <button :class="{ danger: isDeleting }">
+          Submit
+      </button>
+      ```php
+      ````
+
+  - Component Methods
+
+    - In addition to public variables being available to your component template, any public methods on the component may be invoked. For example, imagine a component that has an `isSelected` method:
+
+      ```php
+      /**
+       * Determine if the given option is the currently selected option.
+      */
+      public function isSelected(string $option): bool
+      {
+          return $option === $this->selected;
+      }
+      ```
+
+    - You may execute this method from your component template by invoking the variable matching the name of the method:
+
+      ```php
+      <option {{ $isSelected($value) ? 'selected' : '' }} value="{{ $value }}">
+          {{ $label }}
+      </option>
+      ```
+
+  - Accessing Attributes & Slots Within Component Classes
+
+    - Blade components also allow you to access the component name, attributes, and slot inside the class's render method. However, in order to access this data, you should return a closure from your component's `render` method. The closure will receive a `$data` array as its only argument. This array will contain several elements that provide information about the component:
+
+      ```php
+      use Closure;
+
+      /**
+      * Get the view / contents that represent the component.
+      */
+      public function render(): Closure
+      {
+          return function (array $data) {
+              // $data['componentName'];
+              // $data['attributes'];
+              // $data['slot'];
+
+              return '<div>Components content</div>';
+          };
+      }
+      ```
+
+    - The `componentName` is equal to the name used in the HTML tag after the `x-` prefix. So `<x-alert />`'s `componentName` will be `alert`. The `attributes` element will contain all of the attributes that were present on the HTML tag. The `slot` element is an Illuminate\Support\HtmlString instance with the contents of the component's slot.
+
+    - The closure should return a string. If the returned string corresponds to an existing view, that view will be rendered; otherwise, the returned string will be evaluated as an inline Blade view.
+
+  - Additional Dependencies
+
+    - If your component requires dependencies from Laravel's `service container`, you may list them before any of the component's data attributes and they will automatically be injected by the container:
+
+      ```php
+      use App\Services\AlertCreator;
+
+      /**
+      * Create the component instance.
+      */
+      public function __construct(
+          public AlertCreator $creator,
+          public string $type,
+          public string $message,
+      ) {}
+      ```
+
+  - Hiding Attributes / Methods
+
+    - If you would like to prevent some public methods or properties from being exposed as variables to your component template, you may add them to an `$except` array property on your component:
+
+      ```php
+      <?php
+
+      namespace App\View\Components;
+
+      use Illuminate\View\Component;
+
+      class Alert extends Component
+      {
+          /**
+          * The properties / methods that should not be exposed to the component template.
+          *
+          * @var array
+          */
+          protected $except = ['type'];
+
+          /**
+          * Create the component instance.
+          */
+          public function __construct(
+              public string $type,
+          ) {}
+      }
+      ```
+
+### Eloquent
+
+#### Retrieving Single Models / Aggregates
+
+- In addition to retrieving all of the records matching a given query, you may also retrieve single records using the `find`, `first`, or `firstWhere` methods. Instead of returning a collection of models, these methods return a single model instance:
+
+  ```php
+  use App\Models\Flight;
+
+  // Retrieve a model by its primary key...
+  $flight = Flight::find(1);
+
+  // Retrieve the first model matching the query constraints...
+  $flight = Flight::where('active', 1)->first();
+
+  // Alternative to retrieving the first model matching the query constraints...
+  $flight = Flight::firstWhere('active', 1);
+  ```
+
+- Sometimes you may wish to perform some other action if no results are found. The `findOr` and `firstOr` methods will return a single model instance or, if no results are found, execute the given closure. The value returned by the closure will be considered the result of the method:
+
+  ```php
+  $flight = Flight::findOr(1, function () {
+      // ...
+  });
+
+  $flight = Flight::where('legs', '>', 3)->firstOr(function () {
+      // ...
+  });
+  ```
+
+- Not Found Exceptions
+
+  - Sometimes you may wish to throw an exception if a model is not found. This is particularly useful in routes or controllers. The `findOrFail` and `firstOrFail` methods will retrieve the first result of the query; however, if no result is found, an `Illuminate\Database\Eloquent\ModelNotFoundException` will be thrown:
+
+    ```php
+    $flight = Flight::findOrFail(1);
+
+    $flight = Flight::where('legs', '>', 3)->firstOrFail();
+    ```
+
+  - If the `ModelNotFoundException` is not caught, a 404 HTTP response is automatically sent back to the client:
+
+    ```php
+    use App\Models\Flight;
+
+    Route::get('/api/flights/{id}', function (string $id) {
+        return Flight::findOrFail($id);
+    });
+    ```
+
+- Retrieving Or Creating Models
+
+  - The `firstOrCreate` method will attempt to locate a database record using the given column / value pairs. If the model can not be found in the database, a record will be inserted with the attributes resulting from merging the first array argument with the optional second array argument:
+
+  - The `firstOrNew` method, like `firstOrCreate`, will attempt to locate a record in the database matching the given attributes. However, if a model is not found, a new model instance will be returned. Note that the model returned by `firstOrNew` has not yet been persisted to the database. You will need to manually call the `save` method to persist it:
+
+  ```php
+  use App\Models\Flight;
+
+  // Retrieve flight by name or create it if it doesn't exist...
+  $flight = Flight::firstOrCreate([
+      'name' => 'London to Paris'
+  ]);
+
+  // Retrieve flight by name or create it with the name, delayed, and arrival_time attributes...
+  $flight = Flight::firstOrCreate(
+      ['name' => 'London to Paris'],
+      ['delayed' => 1, 'arrival_time' => '11:30']
+  );
+
+  // Retrieve flight by name or instantiate a new Flight instance...
+  $flight = Flight::firstOrNew([
+      'name' => 'London to Paris'
+  ]);
+
+  // Retrieve flight by name or instantiate with the name, delayed, and arrival_time attributes...
+  $flight = Flight::firstOrNew(
+      ['name' => 'Tokyo to Sydney'],
+      ['delayed' => 1, 'arrival_time' => '11:30']
+  );
+  ```
+
+- Retrieving Aggregates
+
+  - When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other `aggregate methods` provided by the Laravel `query builder`. As you might expect, these methods return a scalar value instead of an Eloquent model instance:
+
+    ```php
+    $count = Flight::where('active', 1)->count();
+
+    $max = Flight::where('active', 1)->max('price');
+    ```
+
 ## 41. Author Filtering
 
 ## 42. Merge Category and Search Queries
