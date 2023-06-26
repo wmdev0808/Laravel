@@ -3000,6 +3000,29 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 45. Build a Register User Page
 
+- About
+
+  We've put it off long enough: it's time to move on to form handling and user authentication. To begin, let's create a route that displays a registration form to sign up for our site.
+
+- Note:
+
+  - `Starter Kits` provides us all the things for authentication, such as register, login, reset password, etc.
+  - But for this episode, we'll build it ourselves.
+
+- Create a route for `register`
+
+  - routes/web.php
+
+    ```php
+    Route::get('register', [RegisterController::class, 'create'])->middleware('guest');
+    ```
+
+- Create a controller for register
+
+  ```bash
+  php artisan make:controller RegisterController
+  ```
+
 ## 46. Automatic Password Hashing With Mutators
 
 ## 47. Failed Validation and Old Input Data
