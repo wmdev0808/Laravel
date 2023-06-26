@@ -2695,6 +2695,180 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 42. Merge Category and Search Queries
 
+- About
+
+  We next need to update both the category dropdown and search input to include all existing and relevant query string parameters. Right now, if we're browsing a certain category, as soon as we perform a search, that current category will revert back to "All." Let's fix that.
+
+- PHP `http_build_query`
+
+  - (PHP 5, PHP 7, PHP 8)
+
+  - `http_build_query` — Generate URL-encoded query string
+
+  - Description ¶
+
+    ```php
+    http_build_query(
+        array|object $data,
+        string $numeric_prefix = "",
+        ?string $arg_separator = null,
+        int $encoding_type = PHP_QUERY_RFC1738
+    ): string
+    ```
+
+    - Generates a URL-encoded query string from the associative (or indexed) array provided.
+
+  - Parameters ¶
+
+    - `data`
+
+      - May be an array or object containing properties.
+
+      - If `data` is an array, it may be a simple one-dimensional structure, or an array of arrays (which in turn may contain other arrays).
+
+      - If `data` is an object, then only public properties will be incorporated into the result.
+
+    - `numeric_prefix`
+
+      - If numeric indices are used in the base array and this parameter is provided, it will be prepended to the numeric index for elements in the base array only.
+
+      - This is meant to allow for legal variable names when the data is decoded by PHP or another CGI application later on.
+
+    - `arg_separator`
+
+      - The argument separator. If not set or `null`, `arg_separator.output` is used to separate arguments.
+
+    - `encoding_type`
+
+      - By default, `PHP_QUERY_RFC1738`.
+
+      - If `encoding_type` is `PHP_QUERY_RFC1738`, then encoding is performed per [» RFC 1738](http://www.faqs.org/rfcs/rfc1738) and the `application/x-www-form-urlencoded` media type, which implies that spaces are encoded as plus (+) signs.
+
+      - If `encoding_type` is `PHP_QUERY_RFC3986`, then encoding is performed according to [» RFC 3986](http://www.faqs.org/rfcs/rfc3986), and spaces will be percent encoded (%20).
+
+  - Return Values ¶
+
+    - Returns a URL-encoded string.
+
+  - Examples
+
+    - **Example #1 Simple usage of http_build_query()**
+
+      ```php
+      <?php
+      $data = array(
+          'foo' => 'bar',
+          'baz' => 'boom',
+          'cow' => 'milk',
+          'null' => null,
+          'php' => 'hypertext processor'
+      );
+
+      echo http_build_query($data) . "\n";
+      echo http_build_query($data, '', '&amp;');
+
+      ?>
+      ```
+
+      - The above example will output:
+
+        ```bash
+        foo=bar&baz=boom&cow=milk&php=hypertext+processor
+        foo=bar&amp;baz=boom&amp;cow=milk&amp;php=hypertext+processor
+        ```
+
+    - `Example #2 http_build_query() with numerically index elements.`
+
+      ```php
+      <?php
+      $data = array('foo', 'bar', 'baz', null, 'boom', 'cow' => 'milk', 'php' => 'hypertext processor');
+
+      echo http_build_query($data) . "\n";
+      echo http_build_query($data, 'myvar_');
+      ?>
+      ```
+
+      - The above example will output:
+
+        ```bash
+        0=foo&1=bar&2=baz&4=boom&cow=milk&php=hypertext+processor
+        myvar_0=foo&myvar_1=bar&myvar_2=baz&myvar_4=boom&cow=milk&php=hypertext+processor
+        ```
+
+    - **Example #3 http_build_query() with complex arrays**
+
+      ```php
+      <?php
+      $data = array(
+          'user' => array(
+              'name' => 'Bob Smith',
+              'age'  => 47,
+              'sex'  => 'M',
+              'dob'  => '5/12/1956'
+          ),
+          'pastimes' => array('golf', 'opera', 'poker', 'rap'),
+          'children' => array(
+              'bobby' => array('age'=>12, 'sex'=>'M'),
+              'sally' => array('age'=>8, 'sex'=>'F')
+          ),
+          'CEO'
+      );
+
+      echo http_build_query($data, 'flags_');
+      ?>
+      ```
+
+      - The above example will output: (word wrapped for readability)
+
+        ```bash
+        user%5Bname%5D=Bob+Smith&user%5Bage%5D=47&user%5Bsex%5D=M&
+        user%5Bdob%5D=5%2F12%2F1956&pastimes%5B0%5D=golf&pastimes%5B1%5D=opera&
+        pastimes%5B2%5D=poker&pastimes%5B3%5D=rap&children%5Bbobby%5D%5Bage%5D=12&
+        children%5Bbobby%5D%5Bsex%5D=M&children%5Bsally%5D%5Bage%5D=8&
+        children%5Bsally%5D%5Bsex%5D=F&flags_0=CEO
+        ```
+
+      - Note:
+
+        - Only the numerically indexed element in the base array "CEO" received a prefix. The other numeric indices, found under pastimes, do not require a string prefix to be legal variable names.
+
+    - **Example #4 Using http_build_query() with an object**
+
+      ```php
+      <?php
+      class parentClass {
+          public    $pub      = 'publicParent';
+          protected $prot     = 'protectedParent';
+          private   $priv     = 'privateParent';
+          public    $pub_bar  = null;
+          protected $prot_bar = null;
+          private   $priv_bar = null;
+
+          public function __construct(){
+              $this->pub_bar  = new childClass();
+              $this->prot_bar = new childClass();
+              $this->priv_bar = new childClass();
+          }
+      }
+
+      class childClass {
+          public    $pub  = 'publicChild';
+          protected $prot = 'protectedChild';
+          private   $priv = 'privateChild';
+      }
+
+      $parent = new parentClass();
+
+      echo http_build_query($parent);
+      ?>
+      ```
+
+      - The above example will output:
+
+        ```bash
+        pub=publicParent&pub_bar%5Bpub%5D=publicChild
+        ```
+
 ## 43. Fix a Confusing Eloquent Query Bug
 
 # 8. Pagination
