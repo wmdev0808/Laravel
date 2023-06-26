@@ -3025,6 +3025,197 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 46. Automatic Password Hashing With Mutators
 
+- About
+
+  We ended the previous episode with a cliffhanger: passwords were being saved to the database in plain text. We can never allow this. Luckily, the solution is quite easy. We'll leverage Eloquent mutators to ensure that passwords are always hashed before being persisted.
+
+- Manually hash `password` attribute
+
+  - RegisterController.php
+
+    ```php
+    public function store()
+    {
+        ...
+        $attributes['password'] = bcrypt($attributes['password']);
+    }
+    ```
+
+- You can also use a Eloquent mutator by creating a method in a model with the following name format: `set` + `attributeName` + `Attribute`
+
+  ```php
+  public function setPasswordAttribute($password)
+  {
+      $this->attributes['password'] = bcrypt($password);
+  }
+  ```
+
+- You can use attribute casting by defining your mode's `$casts` property
+
+  ```php
+  protected $casts = [
+      'password' => 'hashed',
+  ];
+  ```
+
+- Eloquent: Mutators & Casting
+
+  - Introduction
+
+    - Accessors, mutators, and attribute casting allow you to transform Eloquent attribute values when you retrieve or set them on model instances. For example, you may want to use the [Laravel encrypter](https://laravel.com/docs/10.x/encryption) to encrypt a value while it is stored in the database, and then automatically decrypt the attribute when you access it on an Eloquent model. Or, you may want to convert a JSON string that is stored in your database to an array when it is accessed via your Eloquent model.
+
+  - Accessors & Mutators
+
+    - Defining An Accessor
+
+      - An accessor transforms an Eloquent attribute value when it is accessed. To define an accessor, create a protected method on your model to represent the accessible attribute. This method name should correspond to the "camel case" representation of the true underlying model attribute / database column when applicable.
+
+      - In this example, we'll define an accessor for the `first_name` attribute. The accessor will automatically be called by Eloquent when attempting to retrieve the value of the `first_name` attribute. All attribute accessor / mutator methods must declare a return type-hint of `Illuminate\Database\Eloquent\Casts\Attribute`:
+
+        ```php
+        <?php
+
+        namespace App\Models;
+
+        use Illuminate\Database\Eloquent\Casts\Attribute;
+        use Illuminate\Database\Eloquent\Model;
+
+        class User extends Model
+        {
+            /**
+            * Get the user's first name.
+            */
+            protected function firstName(): Attribute
+            {
+                return Attribute::make(
+                    get: fn (string $value) => ucfirst($value),
+                );
+            }
+        }
+        ```
+
+      - All accessor methods return an `Attribute` instance which defines how the attribute will be accessed and, optionally, mutated. In this example, we are only defining how the attribute will be accessed. To do so, we supply the `get` argument to the `Attribute` class constructor.
+
+      - As you can see, the original value of the column is passed to the accessor, allowing you to manipulate and return the value. To access the value of the accessor, you may simply access the `first_name` attribute on a model instance:
+
+        ```php
+        use App\Models\User;
+
+        $user = User::find(1);
+
+        $firstName = $user->first_name;
+        ```
+
+    - Defining A Mutator
+
+      - A mutator transforms an Eloquent attribute value when it is set. To define a mutator, you may provide the `set` argument when defining your attribute. Let's define a mutator for the `first_name` attribute. This mutator will be automatically called when we attempt to set the value of the `first_name` attribute on the model:
+
+        ```php
+        <?php
+
+        namespace App\Models;
+
+        use Illuminate\Database\Eloquent\Casts\Attribute;
+        use Illuminate\Database\Eloquent\Model;
+
+        class User extends Model
+        {
+            /**
+            * Interact with the user's first name.
+            */
+            protected function firstName(): Attribute
+            {
+                return Attribute::make(
+                    get: fn (string $value) => ucfirst($value),
+                    set: fn (string $value) => strtolower($value),
+                );
+            }
+        }
+        ```
+
+      - The mutator closure will receive the value that is being set on the attribute, allowing you to manipulate the value and return the manipulated value. To use our mutator, we only need to set the `first_name` attribute on an Eloquent model:
+
+        ```php
+        use App\Models\User;
+
+        $user = User::find(1);
+
+        $user->first_name = 'Sally';
+        ```
+
+        - In this example, the `set` callback will be called with the value `Sally`. The mutator will then apply the `strtolower` function to the name and set its resulting value in the model's internal `$attributes` array.
+
+  - Attribute Casting
+
+    - Attribute casting provides functionality similar to accessors and mutators without requiring you to define any additional methods on your model. Instead, your model's `$casts` property provides a convenient method of converting attributes to common data types.
+
+    - The `$casts` property should be an array where the key is the name of the attribute being cast and the value is the type you wish to cast the column to. The supported cast types are:
+
+          array
+          AsStringable::class
+          boolean
+          collection
+          date
+          datetime
+          immutable_date
+          immutable_datetime
+          decimal:<precision>
+          double
+          encrypted
+          encrypted:array
+          encrypted:collection
+          encrypted:object
+          float
+          hashed
+          integer
+          object
+          real
+          string
+          timestamp
+
+    - To demonstrate attribute casting, let's cast the `is_admin` attribute, which is stored in our database as an integer (`0` or `1`) to a boolean value:
+
+      ```php
+      <?php
+
+      namespace App\Models;
+
+      use Illuminate\Database\Eloquent\Model;
+
+      class User extends Model
+      {
+          /**
+          * The attributes that should be cast.
+          *
+          * @var array
+          */
+          protected $casts = [
+              'is_admin' => 'boolean',
+          ];
+      }
+      ```
+
+      - After defining the cast, the `is_admin` attribute will always be cast to a boolean when you access it, even if the underlying value is stored in the database as an integer:
+
+        ```php
+        $user = App\Models\User::find(1);
+
+        if ($user->is_admin) {
+            // ...
+        }
+        ```
+
+    - If you need to add a new, temporary cast at runtime, you may use the `mergeCasts` method. These cast definitions will be added to any of the casts already defined on the model:
+
+      ```php
+      $user->mergeCasts([
+          'is_admin' => 'integer',
+          'options' => 'object',
+      ]);
+      ```
+
+    - Attributes that are `null` will not be cast. In addition, you should never define a cast (or an attribute) that has the same name as a relationship or assign a cast to the model's primary key.
+
 ## 47. Failed Validation and Old Input Data
 
 ## 48. Show a Success Flash Message
