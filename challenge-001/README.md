@@ -2871,6 +2871,51 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 43. Fix a Confusing Eloquent Query Bug
 
+- About
+
+  It looks like we have a slight error within our `filter()` query scope. In this lesson, we'll review the underlying SQL query that's producing the incorrect results, and then fix the bug in our Eloquent query.
+
+- Issue
+
+  - When we enter a speicfic category and a specific search, we are getting extra results
+
+- The original SQL executed:
+
+  ```sql
+  SELECT *
+  FROM `posts`
+  WHERE (
+      `title` like '%voluptatem%'
+      or `body` like '%voluptatem%'
+      and EXISTS (
+        SELECT *
+        FROM `categories`
+        WHERE `posts`.`category_id` = `categories`.`id`
+          and `slug` = 'unde-voluptatibus-vitae-aut-quisquam-id-sit-ipsum'
+      )
+    )
+  ORDER BY `created_at` DESC
+  ```
+
+- For the right result:
+
+  ```sql
+  SELECT *
+  FROM `posts`
+  WHERE (
+      `title` like '%voluptatem%'
+      or `body` like '%voluptatem%')
+
+  AND EXISTS (
+        SELECT *
+        FROM `categories`
+        WHERE `posts`.`category_id` = `categories`.`id`
+          and `slug` = 'unde-voluptatibus-vitae-aut-quisquam-id-sit-ipsum'
+      )
+    )
+  ORDER BY `created_at` DESC
+  ```
+
 # 8. Pagination
 
 ## 44. Laughably Simple Pagination
