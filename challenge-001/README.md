@@ -2689,6 +2689,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 41. Author Filtering
 
+- About
+
+  Let's next add support for filtering posts according to their respective author. With this final piece of the puzzle, we'll now be able to easily sort all posts by category, or author, or search text, or all of the above.
+
 ## 42. Merge Category and Search Queries
 
 ## 43. Fix a Confusing Eloquent Query Bug
