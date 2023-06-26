@@ -2906,7 +2906,7 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
       `title` like '%voluptatem%'
       or `body` like '%voluptatem%')
 
-  AND EXISTS (
+  and EXISTS (
         SELECT *
         FROM `categories`
         WHERE `posts`.`category_id` = `categories`.`id`
@@ -2919,6 +2919,82 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 # 8. Pagination
 
 ## 44. Laughably Simple Pagination
+
+- About
+
+  We're currently fetching all posts from the database and rendering them as a grid on the home page. But what happens down the line when you have, say, five hundred blog posts? That's a bit too costly to render. The solution is to leverage pagination - and luckily, Laravel does all the work for you. Come see for yourself.
+
+- To customize Laravel default pagination, you need to publish it:
+
+      php artisan vendor:publish
+
+      Which provider or tag's files would you like to publish?
+      Publish files from all providers and tags listed below ............................. 0
+      Provider: Clockwork\Support\Laravel\ClockworkServiceProvider ....................... 1
+      Provider: Illuminate\Foundation\Providers\FoundationServiceProvider ................ 2
+      Provider: Illuminate\Mail\MailServiceProvider ...................................... 3
+      Provider: Illuminate\Notifications\NotificationServiceProvider ..................... 4
+      Provider: Illuminate\Pagination\PaginationServiceProvider .......................... 5
+      Provider: Laravel\Sail\SailServiceProvider ......................................... 6
+      Provider: Laravel\Sanctum\SanctumServiceProvider ................................... 7
+      Provider: Laravel\Tinker\TinkerServiceProvider ..................................... 8
+      Provider: Spatie\LaravelIgnition\IgnitionServiceProvider ........................... 9
+      Tag: flare-config .................................................................. 10
+      Tag: ignition-config ............................................................... 11
+      Tag: laravel-errors ................................................................ 12
+      Tag: laravel-mail .................................................................. 13
+      Tag: laravel-notifications ......................................................... 14
+      Tag: laravel-pagination ............................................................ 15
+      Tag: sail .......................................................................... 16
+      Tag: sail-bin ...................................................................... 17
+      Tag: sail-docker ................................................................... 18
+      Tag: sanctum-config ................................................................ 19
+      Tag: sanctum-migrations ............................................................ 20
+
+      ❯ 15
+
+      INFO  Publishing [laravel-pagination] assets.
+
+      Copying directory [vendor/laravel/framework/src/Illuminate/Pagination/resources/views] to [resources/views/vendor/pagination] ............... DONE
+
+- Now that you have `bootstrap`, `semanitc-ui`, `tailwind`, etc templates for the pagination in `resources/views/vendor/pagination`, you can choose which one you'll be using for the pagination.
+
+  - app/Providers/AppServiceProvider.php
+
+    ```php
+    <?php
+
+    namespace App\Providers;
+
+    use Illuminate\Pagination\Paginator;
+    use Illuminate\Support\ServiceProvider;
+
+    class AppServiceProvider extends ServiceProvider
+    {
+        ...
+
+        /**
+        * Bootstrap any application services.
+        */
+        public function boot(): void
+        {
+            Paginator::useTailwind(); // default
+            Paginator::useBootstrap();
+            Paginator::useBootstrapFive();
+            Paginator::useBootstrapFour();
+            Paginator::useBootstrapThree();
+
+        }
+    }
+    ```
+
+  - You can add anything from the above code, `useTailwind` is default
+
+- If you use `simplePaginate` instead of `paginate()`, the pagination view will have only `Previous` `Next` links.
+
+  - It is a little bit more performant for large dataset
+
+- To reserve the existing query strings, you can use `withQueryString`
 
 # 9. Forms and Authentication
 
