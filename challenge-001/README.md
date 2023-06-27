@@ -32,6 +32,20 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
     laravel new example-app
     ```
 
+    - Note: Be sure to add `bin` directory of composer global directory to the `$PATH`
+
+      - `.bashrc`
+
+        ```bash
+        export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+        ```
+
+      - Run the `source` command
+
+        ```bash
+        source ~/.bash_profile
+        ```
+
   - After the project has been created, start Laravel's local development server using the Laravel's Artisan CLI `serve` command:
 
     ```bash
@@ -4437,6 +4451,18 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
   We wrapped up the previous episode by creating a Log In link, but we stopped just short of building the view. Let's tackle that now.
 
 ## 51. Laravel Breeze Quick Peek
+
+- About
+
+  Because we've already spent some time working on a custom authentication system for our blog, we'll go ahead and stick with. it. HHowever, we should still set aside a few moments to quickly review Laravel's excellent first-party authentication packages. Specifically, in this episode, we'll take a peek at Laravel Breeze.
+
+- Laravel Breeze
+
+  - Create a new Laravel project
+
+    ```bash
+    laravel new demo
+    ```
 
 # 10. Comments
 
