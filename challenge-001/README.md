@@ -4432,6 +4432,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 50. Build the Log In Page
 
+- About
+
+  We wrapped up the previous episode by creating a Log In link, but we stopped just short of building the view. Let's tackle that now.
+
 ## 51. Laravel Breeze Quick Peek
 
 # 10. Comments
