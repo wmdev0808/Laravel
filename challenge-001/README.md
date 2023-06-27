@@ -4458,11 +4458,48 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 - Laravel Breeze
 
-  - Create a new Laravel project
+  - Installation
 
-    ```bash
-    laravel new demo
-    ```
+    - First, you should `create a new Laravel application`, configure your database, and run your database migrations. Once you have created a new Laravel application, you may install Laravel Breeze using Composer:
+
+      ```bash
+      laravel new demo
+      ```
+
+      - SQLite Configuration
+
+        - SQLite databases are contained within a single file on your filesystem. You can create a new SQLite database using the `touch` command in your terminal: `touch database/database.sqlite`. After the database has been created, you may easily configure your environment variables to point to this database by placing the absolute path to the database in the `DB_DATABASE` environment variable:
+
+        - .env
+
+              DB_CONNECTION=sqlite
+              DB_DATABASE=/absolute/path/to/database.sqlite
+
+        - To enable foreign key constraints for SQLite connections, you should set the DB_FOREIGN_KEYS environment variable to true:
+
+              DB_FOREIGN_KEYS=true
+
+      - Install Laravel Breeze using Composer:
+
+        ```bash
+        composer require laravel/breeze --dev
+        ```
+
+  - Once Breeze is installed, you may scaffold your application using one of the Breeze "stacks" discussed in the documentation below.
+
+  - Breeze & Blade
+
+    - After Composer has installed the Laravel Breeze package, you may run the `breeze:install` Artisan command. This command publishes the authentication views, routes, controllers, and other resources to your application. Laravel Breeze publishes all of its code to your application so that you have full control and visibility over its features and implementation.
+
+    - The default Breeze "stack" is the Blade stack, which utilizes simple `Blade templates` to render your application's frontend. The Blade stack may be installed by invoking the `breeze:install` command with no other additional arguments. After Breeze's scaffolding is installed, you should also compile your application's frontend assets:
+
+      ```bash
+      php artisan breeze:install blade
+
+      php artisan migrate
+      npm install
+      npm run dev
+      ```
 
 # 10. Comments
 
