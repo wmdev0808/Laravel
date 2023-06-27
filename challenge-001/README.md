@@ -3218,6 +3218,218 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 47. Failed Validation and Old Input Data
 
+- About
+
+  We next need to provide the user with feedback whenever the validation checker fails. In these cases, we can reach for the `@error` Blade directive to easily render an attribute's corresponding validation message (if any). We'll also discuss how to fetch `old()` input data.
+
+- Validation
+
+  - Laravel provides several different approaches to validate your application's incoming data. It is most common to use the `validate` method available on all incoming HTTP requests. However, we will discuss other approaches to validation as well.
+
+  - Laravel includes a wide variety of convenient validation rules that you may apply to data, even providing the ability to validate if values are unique in a given database table. We'll cover each of these validation rules in detail so that you are familiar with all of Laravel's validation features.
+
+  - Writing The Validation Logic
+
+    - Now we are ready to fill in our `store` method with the logic to validate the new blog post. To do this, we will use the `validate` method provided by the `Illuminate\Http\Request` object. If the validation rules pass, your code will keep executing normally; however, if validation fails, an `Illuminate\Validation\ValidationException` exception will be thrown and the proper error response will automatically be sent back to the user.
+
+    - If validation fails during a traditional HTTP request, a redirect response to the previous URL will be generated. If the incoming request is an XHR request, a `JSON response containing the validation error messages` will be returned.
+
+    - To get a better understanding of the `validate` method, let's jump back into the `store` method:
+
+      ```php
+      /**
+       * Store a new blog post.
+      */
+      public function store(Request $request): RedirectResponse
+      {
+          $validated = $request->validate([
+              'title' => 'required|unique:posts|max:255',
+              'body' => 'required',
+          ]);
+
+          // The blog post is valid...
+
+          return redirect('/posts');
+      }
+      ```
+
+      - As you can see, the validation rules are passed into the `validate` method. Don't worry - all available validation rules are [documented](https://laravel.com/docs/10.x/validation#available-validation-rules). Again, if the validation fails, the proper response will automatically be generated. If the validation passes, our controller will continue executing normally.
+
+    - Alternatively, validation rules may be specified as arrays of rules instead of a single `|` delimited string:
+
+      ```php
+      $validatedData = $request->validate([
+      'title' => ['required', 'unique:posts', 'max:255'],
+      'body' => ['required'],
+      ]);
+      ```
+
+    - In addition, you may use the `validateWithBag` method to validate a request and store any error messages within a [named error bag](https://laravel.com/docs/10.x/validation#named-error-bags):
+
+      ```php
+      $validatedData = $request->validateWithBag('post', [
+      'title' => ['required', 'unique:posts', 'max:255'],
+      'body' => ['required'],
+      ]);
+
+      ```
+
+    - Stopping On First Validation Failure
+
+      - Sometimes you may wish to stop running validation rules on an attribute after the first validation failure. To do so, assign the bail rule to the attribute:
+
+        ```php
+        $request->validate([
+        'title' => 'bail|required|unique:posts|max:255',
+        'body' => 'required',
+        ]);
+        ```
+
+        - In this example, if the `unique` rule on the `title` attribute fails, the `max` rule will not be checked. Rules will be validated in the order they are assigned.
+
+    - A Note On Nested Attributes
+
+      - If the incoming HTTP request contains "nested" field data, you may specify these fields in your validation rules using "dot" syntax:
+
+        ```php
+        $request->validate([
+        'title' => 'required|unique:posts|max:255',
+        'author.name' => 'required',
+        'author.description' => 'required',
+        ]);
+        ```
+
+      - On the other hand, if your field name contains a literal period, you can explicitly prevent this from being interpreted as "dot" syntax by escaping the period with a backslash:
+
+        ```php
+        $request->validate([
+        'title' => 'required|unique:posts|max:255',
+        'v1\.0' => 'required',
+        ]);
+        ```
+
+  - Available Validation Rules
+
+    - `unique:table,column`
+
+      - The field under validation must not exist within the given database table.
+
+      - Specifying A Custom Table / Column Name:
+
+        - Instead of specifying the table name directly, you may specify the Eloquent model which should be used to determine the table name:
+
+          ```php
+          'email' => 'unique:App\Models\User,email_address'
+          ```
+
+        - The column option may be used to specify the field's corresponding database column. If the column option is not specified, the name of the field under validation will be used.
+
+          ```php
+          'email' => 'unique:users,email_address'
+          ```
+
+  - Displaying The Validation Errors
+
+    - So, what if the incoming request fields do not pass the given validation rules? As mentioned previously, Laravel will automatically redirect the user back to their previous location. In addition, all of the validation errors and `request input` will automatically be `flashed to the session`.
+
+    - An `$errors` variable is shared with all of your application's views by the `Illuminate\View\Middleware\ShareErrorsFromSession` middleware, which is provided by the `web` middleware group. When this middleware is applied an `$errors` variable will always be available in your views, allowing you to conveniently assume the `$errors` variable is always defined and can be safely used. The `$errors` variable will be an instance of `Illuminate\Support\MessageBag`. For more information on working with this object, check out its documentation.
+
+    - So, in our example, the user will be redirected to our controller's `create` method when validation fails, allowing us to display the error messages in the view:
+
+      ```php
+      <!-- /resources/views/post/create.blade.php -->
+
+      <h1>Create Post</h1>
+
+      @if ($errors->any())
+          <div class="alert alert-danger">
+              <ul>
+                  @foreach ($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                  @endforeach
+              </ul>
+          </div>
+      @endif
+
+      <!-- Create Post Form -->
+      ```
+
+    - The @error Directive
+
+      - You may use the `@error` Blade directive to quickly determine if validation error messages exist for a given attribute. Within an `@error` directive, you may echo the `$message` variable to display the error message:
+
+        ```php
+        <!-- /resources/views/post/create.blade.php -->
+
+        <label for="title">Post Title</label>
+
+        <input id="title"
+            type="text"
+            name="title"
+            class="@error('title') is-invalid @enderror">
+
+        @error('title')
+            <div class="alert alert-danger">{{ $message }}</div>
+        @enderror
+        ```
+
+      - If you are using [named error bags](https://laravel.com/docs/10.x/validation#named-error-bags), you may pass the name of the error bag as the second argument to the `@error` directive:
+
+        ```php
+        <input ... class="@error('title', 'post') is-invalid @enderror">
+        ```
+
+  - Repopulating Forms
+
+    - When Laravel generates a redirect response due to a validation error, the framework will automatically `flash all of the request's input to the session`. This is done so that you may conveniently access the input during the next request and repopulate the form that the user attempted to submit.
+
+    - To retrieve flashed input from the previous request, invoke the `old` method on an instance of `Illuminate\Http\Request`. The `old` method will pull the previously flashed input data from the [session](https://laravel.com/docs/10.x/session):
+
+      ```php
+      $title = $request->old('title');
+      ```
+
+    - Laravel also provides a global `old` helper. If you are displaying old input within a [Blade template](https://laravel.com/docs/10.x/blade), it is more convenient to use the `old` helper to repopulate the form. If no old input exists for the given field, `null` will be returned:
+
+      ```php
+      <input type="text" name="title" value="{{ old('title') }}">
+      ```
+
+  - A Note On Optional Fields
+
+    - By default, Laravel includes the `TrimStrings` and `ConvertEmptyStringsToNull` middleware in your application's global middleware stack. These middleware are listed in the stack by the `App\Http\Kernel` class. Because of this, you will often need to mark your "optional" request fields as `nullable` if you do not want the validator to consider `null` values as invalid. For example:
+
+      ```php
+      $request->validate([
+          'title' => 'required|unique:posts|max:255',
+          'body' => 'required',
+          'publish_at' => 'nullable|date',
+      ]);
+      ```
+
+      - In this example, we are specifying that the `publish_at` field may be either `null` or a valid date representation. If the `nullable` modifier is not added to the rule definition, the validator would consider `null` an invalid date.
+
+  - Validation Error Response Format
+
+    - When your application throws a `Illuminate\Validation\ValidationException` exception and the incoming HTTP request is expecting a JSON response, Laravel will automatically format the error messages for you and return a `422 Unprocessable Entity` HTTP response.
+
+    - Below, you can review an example of the JSON response format for validation errors. Note that nested error keys are flattened into "dot" notation format:
+
+      ```json
+      {
+        "message": "The team name must be a string. (and 4 more errors)",
+        "errors": {
+          "team_name": [
+            "The team name must be a string.",
+            "The team name must be at least 1 characters."
+          ],
+          "authorization.role": ["The selected authorization.role is invalid."],
+          "users.0.email": ["The users.0.email field is required."],
+          "users.2.email": ["The users.2.email must be a valid email address."]
+        }
+      }
+      ```
+
 ## 48. Show a Success Flash Message
 
 ## 49. Login and Logout
