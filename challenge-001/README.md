@@ -4572,6 +4572,14 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 55. Design the Comment Form
 
+- Things You'll Learn
+
+  - Design a Comment Form
+
+- About
+
+  Now that each post can display a list of comments, let's next create a form to allow any authenticated user to participate in the conversation.
+
 ## 56. Activate the Comment Form
 
 ## 57. Some Light Chapter Clean Up
