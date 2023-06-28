@@ -4505,6 +4505,10 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 52. Write the Markup for a Post Comment
 
+- About
+
+  Let's now move on to post comments. We'll begin with the base markup for a comment.
+
 ## 53. Table Consistency and Foreign Key Constraints
 
 ## 54. Make the Comments Section Dynamic
