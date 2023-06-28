@@ -4538,6 +4538,38 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 54. Make the Comments Section Dynamic
 
+- About
+
+  Now that we have a comments table ready to go, let's now switch over and build up the necessary attributes for our `CommentFactory`. Once complete, we'll then switch back to our post page and make the comments section loop over what we have stored in the database.
+
+- In Tinker
+
+      php artisan tinker
+      > App\Models\Comment::factory(10)->create(['post_id' => 159]);
+      = Illuminate\Database\Eloquent\Collection {#6297
+          all: [
+            App\Models\Comment {#6305
+              post_id: 159,
+              user_id: 14,
+              body: "Sint expedita consequuntur quia ipsa quos dolores. Sunt aliquam impedit impedit architecto quaerat. Dolor fugit doloribus rerum hic quia.",
+              updated_at: "2023-06-28 09:35:37",
+              created_at: "2023-06-28 09:35:37",
+              id: 1,
+            },
+            App\Models\Comment {#6319
+              post_id: 159,
+              user_id: 15,
+              body: "Consequuntur et voluptatem atque dolor non est minima. Quaerat nisi velit nihil quisquam non corrupti. Molestias distinctio accusamus ullam rerum est. Et eum inventore consectetur debitis delectus provident quia voluptas.",
+              updated_at: "2023-06-28 09:35:38",
+              created_at: "2023-06-28 09:35:38",
+              id: 2,
+            },
+            ...
+
+- Random Avatar
+
+  https://pravatar.cc/
+
 ## 55. Design the Comment Form
 
 ## 56. Activate the Comment Form
