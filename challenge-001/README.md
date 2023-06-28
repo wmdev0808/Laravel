@@ -4582,6 +4582,30 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 56. Activate the Comment Form
 
+- Things You'll Learn
+
+  - Route URI Conventions
+  - Resourceful Actions
+  - Disable Mass Assignment
+
+- About
+
+  Now that the comment form is fully designed, we can add the necessary logic to "activate it."
+
+- Route URI Conventions
+
+  ```
+  Route::post('posts/{post:slug}/comments', [PostCommentsController::class, 'store']);
+  ```
+
+- Resourceful Actions
+
+  - `index`, `show`, `create`, `store`, `edit`, `update`, `destroy`
+
+- Disable Mass Assignment
+
+  - You can disable it at the level of provider, instead of using `$fillable` or `$guarded` protected properties in models
+
 ## 57. Some Light Chapter Clean Up
 
 # 11. Newsletters and APIs
