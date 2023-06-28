@@ -4608,6 +4608,15 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 57. Some Light Chapter Clean Up
 
+- Things You'll Learn
+
+  - Extract Blade Components
+  - The @include Blade Directive
+
+- About
+
+  Before we move on to the next section, let's take a few moments to clean up after ourselves. We'll extract a couple Blade components, create a PHP include, and then manually reformat bits of our code.
+
 # 11. Newsletters and APIs
 
 ## 58. Mailchimp API Tinkering
