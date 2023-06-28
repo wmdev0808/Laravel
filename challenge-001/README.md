@@ -4521,6 +4521,21 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
   php artisan make:model Comment -mfc
   ```
 
+- Add foreign key constraints
+
+  ```php
+  $table->unsignedBigInteger('post_id');
+  $table->foreign('post_id')->references('id')->on('posts')->cascadeOnDelete();
+  ```
+
+  Or shorthand of the above:
+
+  ```php
+  $table->foreignId('post_id')->constrained()->cascadeOnDelete();
+  ```
+
+  - It means if you delete a corresponding post(`parent`), then a comment with the post's id as a foreign key(`child`) will also be deleted.
+
 ## 54. Make the Comments Section Dynamic
 
 ## 55. Design the Comment Form
