@@ -4511,6 +4511,16 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 53. Table Consistency and Foreign Key Constraints
 
+- About
+
+  We can next move on to building up the migration and corresponding table for our comments. This will give us a chance to more deeply discuss foreign key constraints.
+
+- Create a model, migration, factory and controller for a comment
+
+  ```bash
+  php artisan make:model Comment -mfc
+  ```
+
 ## 54. Make the Comments Section Dynamic
 
 ## 55. Design the Comment Form
