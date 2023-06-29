@@ -4733,6 +4733,15 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 59. Make the Newsletter Form Work
 
+- Things You'll Learn
+
+  - Mailchimp Lists
+  - Form Validation
+
+- About
+
+  Okay, now that we understand the basics of how to add an email address to a Mailchimp list, let's update the newsletter form.
+
 ## 60. Extract a Newsletter Service
 
 ## 61. Toy Chests and Contracts
