@@ -17,6 +17,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('ping', function () {
+    $mailchimp = new \MailchimpMarketing\ApiClient();
+
+    $mailchimp->setConfig([
+        'apiKey' => config('services.mailchimp.key'),
+        'server' => 'server_prefix'
+    ]);
+
+    $response = $mailchimp->lists->addListMember('list_id', [
+        'email_address' => 'user@example.com',
+        'status' => 'subscribed'
+    ]);
+
+    ddd($response);
+});
+
 Route::get('/', [PostController::class, 'index'])->name('home');
 
 Route::get('posts/{post:slug}', [PostController::class, 'show']);

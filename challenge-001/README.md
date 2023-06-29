@@ -4621,6 +4621,116 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 58. Mailchimp API Tinkering
 
+- Things You'll Learn
+
+  - Install the Mailchimp SDK
+  - Add Members to a Newsletter List
+
+- About
+
+  Let's begin by familiarizing ourselves with the Mailchimp API. We'll learn how to install the official PHP SDK, and then review the basics of how to make some initial API calls.
+
+- Mailchimp
+
+  - url: https://mailchimp.com/
+    - Create a new account for free plan
+    - account/profile
+      - Extra/API keys
+        - Create A Key
+          - Label: laravel_blog_newsletter
+          - API Key: xxx
+
+- Add the Mailchimp API key into .env
+  MAILCHIMP_KEY=xxx
+
+- Add config for mailchimp service in `config/services.php`
+
+  ```php
+  ...
+  'mailchimp' => [
+        'key' => env('MAILCHIMP_KEY')
+    ]
+  ```
+
+- Track down the config in tinker
+  php artisan tinker > config('services.mailchimp')
+  = [
+  "key" => "xxx"
+  ] > config('services.mailchimp.key')
+  = "xxx" >
+
+- Marketing API Quick Start
+
+  - https://mailchimp.com/developer/marketing/guides/quick-start/
+
+    - Install the client library for your language
+
+      - You can make calls to the Marketing API with whichever method you usually use to make HTTP requests, but Mailchimp offers [client libraries](https://mailchimp.com/developer/tools/) that make interacting with the API even simpler.
+
+      ```bash
+      composer require mailchimp/marketing
+      ```
+
+    - Make your first API call
+
+      - To test that you have everything set up correctly, we’ll make a simple request to the Ping endpoint. Hitting this endpoint acts as a health check on the Mailchimp API service; it won’t affect your account in any way.
+
+      - To find the value for the `server` parameter used in `mailchimp.setConfig`, log into your Mailchimp account and look at the URL in your browser. You’ll see something like `https://us19.admin.mailchimp.com/`; the `us19` part is the server prefix. Note that your specific value may be different.
+
+        ```php
+        require_once('/path/to/MailchimpMarketing/vendor/autoload.php');
+        $mailchimp = new \MailchimpMarketing\ApiClient();
+        $mailchimp->setConfig([
+          'apiKey' => 'YOUR_API_KEY',
+          'server' => 'YOUR_SERVER_PREFIX'
+        ]);
+        $response = $mailchimp->ping->get();
+        print_r($response);
+        ```
+
+      - If everything was set up correctly and the request to `ping` was a success, the response should look like the following:
+
+        ```json
+        {
+          "health_status": "Everything's Chimpy!"
+        }
+        ```
+
+- routes/web.php
+  ```php
+  Route::get('ping', function () {
+      $mailchimp = new \MailchimpMarketing\ApiClient();
+      $mailchimp->setConfig([
+          'apiKey' => config('services.mailchimp.key'),
+          'server' => 'server_suffix'
+      ]);
+      $response = $mailchimp->ping->get();
+      ddd($response);
+  });
+  ```
+- Get lists info
+  ```php
+  $response = $client->lists->getAllLists();
+  ```
+- Get list info
+  ```php
+  $response = $client->lists->getList("list_id");
+  ```
+- List members info
+  ```php
+  $response = $client->lists->getListMembersInfo("list_id");
+  ```
+- Add member to list
+  ```php
+  $response = $client->lists->addListMember("list_id", [
+      "email_address" => "Lindsey.White93@hotmail.com",
+      "status" => "pending",
+  ]);
+  ```
+- Now you can see the new email has been added as a contact in `Mailchimp` dashboard
+- Create a new campaign on Mailchimp
+  - Campaign > Create campaign
+
 ## 59. Make the Newsletter Form Work
 
 ## 60. Extract a Newsletter Service
