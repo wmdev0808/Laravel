@@ -4858,6 +4858,225 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 62. Limit Access to Only Admins
 
+- Things You'll Learn
+
+  - Middleware Authorization
+
+- About
+
+  - Let's finally work on the administration section for publishing new posts. Before we begin constructing the form, let's first figure out how to add the necessary authorization layer to ensure that only administrators may access this section of the site.
+
+  - Create a middleware
+
+        php artisan make:middleware MustBeAdministrator
+
+- PHP RFC: Nullsafe operator
+
+  - Target Version: PHP 8.0
+
+  - Introduction
+
+    - This RFC proposes the new nullsafe operator ?-> with full short circuiting.
+
+  - Proposal
+
+    - It is fairly common to only want to call a method or fetch a property on the result of an expression if it is not null.
+
+    - Currently in PHP, checking for null leads to deeper nesting and repetition:
+
+      ```php
+      $country =  null;
+
+      if ($session !== null) {
+          $user = $session->user;
+
+          if ($user !== null) {
+              $address = $user->getAddress();
+
+              if ($address !== null) {
+                  $country = $address->country;
+              }
+          }
+      }
+
+      // do something with $country
+      ```
+
+    - With the nullsafe operator ?-> this code could instead be written as:
+
+      ```php
+      $country = $session?->user?->getAddress()?->country;
+
+      // do something with $country
+      ```
+
+    - When the left hand side of the operator evaluates to null the execution of the entire chain will stop and evalute to null. When it is not null it will behave exactly like the normal -> operator.
+
+  - Short circuiting
+
+    - Introduction
+
+      - Short circuiting refers to skipping the evaluation of an expression based on some given condition. Two common examples are the operators && and ||. There are three ways the nullsafe operator ?-> could implement short circuiting. We’ll look at the same code snippet for every option.
+
+        ```php
+        null?->foo(bar())->baz();
+        ```
+
+      - 1. Short circuiting for neither method arguments nor chained method calls
+
+        - This complete lack of short circuiting is currently only found in Hack. Both the function bar() and the method baz() are called. baz() will cause a “Call to a member function on null” error. Evaluating method arguments makes it the most surprising of the three options. This was the primary criticism of the last RFC.
+
+      - 2. Short circuiting for method arguments but not chained method calls
+
+        - This is what would normally be considered lack of short circuiting. The function bar() is not called, the method baz() is. baz() will cause a “Call to a member function on null” error.
+
+      - 3. Short circuiting for both method arguments and chained method calls
+
+        - We’ll refer to this as full short circuiting. Neither the function bar() nor the method baz() are called. There will be no “Call to a member function on null” error.
+
+    - Proposal
+
+      - This RFC proposes full short circuiting. When the evaluation of one element in the chain fails the execution of the entire chain is aborted and the entire chain evaluates to null. The following elements are considered part of the chain.
+
+        - Array access ([])
+        - Property access (->)
+        - Nullsafe property access (?->)
+        - Static property access (::)
+        - Method call (->)
+        - Nullsafe method call (?->)
+        - Static method call (::)
+
+      - The following elements will cause new sub-chains.
+
+        - Arguments in a function call
+        - The expression in [] of an array access
+        - The expression in {} when accessing properties (->{})
+
+      - Chains are automatically inferred. Only the closest chain will terminate. The following examples will try to illustrate.
+
+      ```php
+        $foo = $a?->b();
+      // --------------- chain 1
+      //        -------- chain 2
+      // If $a is null chain 2 is aborted, method b() isn't called, null is assigned to $foo
+
+        $a?->b($c->d());
+      // --------------- chain 1
+      //        -------  chain 2
+      // If $a is null chain 1 is aborted, method b() isn't called, the expression `$c->d()` is not evaluated
+
+        $a->b($c?->d());
+      // --------------- chain 1
+      //       --------  chain 2
+      // If $c is null chain 2 is aborted, method d() isn't called, null is passed to `$a->b()`
+      ```
+
+    - Rationale
+
+      - 1. It avoids surprises
+
+        ```php
+        $foo = null;
+        $foo?->bar(expensive_function());
+        ```
+
+        - The evaluation of expensive_function() is undesirable if $foo is null as its result will simply be discarded. If the function has side effects it could also lead to surprises.
+
+      - 2. You can see which methods/properties return null
+
+        ```php
+        $foo = null;
+        $foo?->bar()->baz();
+        ```
+
+        - Without short circuiting every subsequent method call and property access in the chain will require using the nullsafe operator or you will get a “Call to a member function on null” error. With short circuiting this isn’t necessary which makes it more obvious which methods/properties might return null.
+
+      - 3. Mixing with other operators
+
+        ```php
+        $foo = null;
+        $baz = $foo?->bar()['baz'];
+        var_dump($baz);
+
+        // Without short circuiting:
+        // Notice: Trying to access array offset on value of type null
+        // NULL
+
+        // With short circuiting
+        // NULL
+        ```
+
+        - Since with short circuiting the array access ['baz'] will be completely skipped no notice is emitted.
+
+  - Syntax choice
+
+    - The ? in ?-> denotes the precise place in the code where the short circuiting occurs. It closely resembles the syntax of every other language that implements a nullsafe operator.
+
+  - Forbidden usages
+
+    - Nullsafe operator in write context
+
+      - Using the nullsafe operator in write context ist not allowed.
+
+        ```php
+        $foo?->bar->baz = 'baz';
+        // Can't use nullsafe operator in write context
+
+        foreach ([1, 2, 3] as $foo?->bar->baz) {}
+        // Can't use nullsafe operator in write context
+
+        unset($foo?->bar->baz);
+        // Can't use nullsafe operator in write context
+
+        [$foo?->bar->baz] = 'baz';
+        // Assignments can only happen to writable values
+        ```
+
+      - It was previously suggested to allow the nullsafe operator in the left hand side of assignments and skip the assignment if the left hand side of the nullsafe operator was null. However, due to technical difficulties this is not a part of this RFC. It might be addressed in a later RFC. It is also not completely clear whether the right hand side of the assignment should always be evaluated or not.
+
+    - References
+
+      - Taking the reference of a nullsafe chain is not allowed. This is because references require l-values (memory locations, like variables or properties) but the nullsafe operator can sometimes return the r-value null.
+
+        ```php
+        $x = &$foo?->bar;
+
+        // Could loosely be translated to
+
+        if ($foo !== null) {
+            $x = &$foo->bar;
+        } else {
+            $x = &null;
+            // Only variables should be assigned by reference
+        }
+        ```
+
+      - For this reason, the following examples are disallowed.
+
+        ```php
+        // 1
+        $x = &$foo?->bar;
+        // Compiler error: Cannot take reference of a nullsafe chain
+
+        // 2
+        takes_ref($foo?->bar);
+        // Error: Cannot pass parameter 1 by reference
+
+        // 3
+        function &return_by_ref($foo) {
+            return $foo?->bar;
+            // Compiler error: Cannot take reference of a nullsafe chain
+        }
+        ```
+
+        - Example 2 is a runtime error because we cannot know at compile time if the given parameter allows passing values by reference.
+
+  - Future Scope
+
+    - Since PHP 7.4 a notice is emitted on array access on null (null["foo"]). Thus the operator ?[] could also be useful ($foo?["foo"]). Unfortunately, this code introduces a parser ambiguity because of the ternary operator and short array syntax ($foo?["foo"]:["bar"]). Because of this complication the ?[] operator is not part of this RFC.
+
+    - A nullsafe function call syntax ($callableOrNull?()) is also outside of scope for this RFC.
+
 ## 63. Create the Publish Post Form
 
 ## 64. Validate and Store Post Thumbnails
