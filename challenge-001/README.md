@@ -4817,6 +4817,43 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 61. Toy Chests and Contracts
 
+- Things You'll Learn
+
+  - Service Containers
+  - PHP Interfaces
+  - Registration
+
+- About
+
+  This next episode is supplementary. It's slightly more advanced, and reviews service containers, providers, and contracts. Though I do my best to break it all down, please feel free to ask any questions you might have in the comments below. Otherwise, if you feel left behind by this episode, the truth is you can sneak by for a long time without fully understanding these concepts.
+
+- Discussions
+
+  - I recently had an issue with a custom service provider: that `register` method was simply ignored whatever I did.
+
+    - Solution:
+
+          composer dump-autoload
+
+  - A few links to help your better understanding of the topic:
+
+    - Obviously Laravel's docs:
+
+      - [Laravel docs on service providers](https://laravel.com/docs/providers)
+      - [Laravel docs on the service container](https://laravel.com/docs/container)
+      - [Laravel docs on contracts](https://laravel.com/docs/contracts)
+
+    - Talks, podcasts and videos:
+
+      - [Laracon talk on the service container by Christoph Rumpel](https://vimeo.com/showcase/7060635/video/525707748)
+      - [Video on service providers by Laravel Daily](https://www.youtube.com/watch?v=VYPfncvYW-Y)
+      - [Laravel podcast on service container with Matt Stauffer and Christoph Rumpel](https://laravelpodcast.com/episodes/the-service-container-with-christoph-rumpel)
+
+    - Other resources:
+
+      - ["What is the concept of Service Container in Laravel?" on Stack Overflow](https://stackoverflow.com/questions/37038830/what-is-the-concept-of-service-container-in-laravel/48239728)
+      - ["Laravel Service Container and Service Providers Explained" on dev.to](https://dev.to/fhsinchy/laravel-service-container-and-service-providers-explained-5a1)
+
 # 12. Admin Section
 
 ## 62. Limit Access to Only Admins
