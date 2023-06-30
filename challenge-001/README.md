@@ -4744,6 +4744,77 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 60. Extract a Newsletter Service
 
+- Things You'll Learn
+
+  - Extract a Class
+  - Automatic Resolution
+  - Invokable Controllers
+
+- About
+
+  I think we're comfortable enough with this small piece of code to extract it into its own `Newsletter` service class.
+
+- PHP RFC: Null Coalescing Assignment Operator
+
+  - Status: Implemented (in PHP 7.4)
+
+  - Introduction
+
+    - Combined assignment operators have been around since 1970's, appearing first in the C Programming Language. For example, `$x = $x + 3` can be shortened to `$x += 3`. With PHP being a web focused language, the `??` operator is often used to check something's existence like `$username = $_GET['user'] ?? 'nobody';` However, because variable names are often much longer than `$username`, the use of `??` for self assignment creates repeated code, like `$this->request->data['comments']['user_id'] = $this->request->data['comments']['user_id'] ?? ‘value’;`. It is also intuitive to use combined assignment operator null coalesce checking for self assignment.
+
+  - Proposal
+
+    - Despite `??` coalescing operator being a comparison operator, coalesce equal or `??=`operator is an assignment operator. If the left parameter is null, assigns the value of the right paramater to the left one. If the value is not null, nothing is made.
+
+      ```php
+      // The folloving lines are doing the same
+      $this->request->data['comments']['user_id'] = $this->request->data['comments']['user_id'] ?? 'value';
+      // Instead of repeating variables with long names, the equal coalesce operator is used
+      $this->request->data['comments']['user_id'] ??= 'value';
+      ```
+
+- Controllers
+
+  - Writing Controllers
+
+    - Single Action Controllers
+
+      - If a controller action is particularly complex, you might find it convenient to dedicate an entire controller class to that single action. To accomplish this, you may define a single `__invoke` method within the controller:
+
+        ```php
+        <?php
+
+        namespace App\Http\Controllers;
+
+        use App\Models\User;
+        use Illuminate\Http\Response;
+
+        class ProvisionServer extends Controller
+        {
+            /**
+            * Provision a new web server.
+            */
+            public function __invoke()
+            {
+                // ...
+            }
+        }
+        ```
+
+      - When registering routes for single action controllers, you do not need to specify a controller method. Instead, you may simply pass the name of the controller to the router:
+
+        ```php
+        use App\Http\Controllers\ProvisionServer;
+
+        Route::post('/server', ProvisionServer::class);
+        ```
+
+      - You may generate an invokable controller by using the `--invokable` option of the `make:controller` Artisan command:
+
+        ```bash
+        php artisan make:controller ProvisionServer --invokable
+        ```
+
 ## 61. Toy Chests and Contracts
 
 # 12. Admin Section
