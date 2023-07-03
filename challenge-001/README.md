@@ -5209,6 +5209,16 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 66. Extend the Admin Layout
 
+- Things You'll Learn
+
+  - Dropdown Menus
+  - Flexbox
+  - Active Links
+
+- About
+
+  In this episode, we'll add an account dropdown menu to the navigation area, and then extend the layout for our settings/administration section to allow for a sidebar.
+
 ## 67. Create a Form to Edit and Delete Posts
 
 ## 68. Group and Store Validation Logic
