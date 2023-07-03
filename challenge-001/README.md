@@ -5221,6 +5221,69 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 67. Create a Form to Edit and Delete Posts
 
+- Things You'll Learn
+
+  - Populate Edit Forms
+  - Update Validation Rules
+
+- About
+
+  There's one glaring feature missing that we need to implement: any post may be edited or deleted. We'll work on allowing for that in this episode.
+
+- Create `AdminPostController`
+
+      php artisan make:controller AdminPostController
+
+- Forcing A Unique Rule To Ignore A Given ID:
+
+  - Sometimes, you may wish to ignore a given ID during unique validation. For example, consider an "update profile" screen that includes the user's name, email address, and location. You will probably want to verify that the email address is unique. However, if the user only changes the name field and not the email field, you do not want a validation error to be thrown because the user is already the owner of the email address in question.
+
+  - To instruct the validator to ignore the user's ID, we'll use the `Rule` class to fluently define the rule. In this example, we'll also specify the validation rules as an array instead of using the `|` character to delimit the rules:
+
+    ```php
+    use Illuminate\Support\Facades\Validator;
+    use Illuminate\Validation\Rule;
+
+    Validator::make($data, [
+        'email' => [
+            'required',
+            Rule::unique('users')->ignore($user->id),
+        ],
+    ]);
+    ```
+
+  - Note: You should never pass any user controlled request input into the `ignore` method. Instead, you should only pass a system generated unique ID such as an auto-incrementing ID or UUID from an Eloquent model instance. Otherwise, your application will be vulnerable to an SQL injection attack.
+
+  - Instead of passing the model key's value to the `ignore` method, you may also pass the entire model instance. Laravel will automatically extract the key from the model:
+
+    ```php
+    Rule::unique('users')->ignore($user)
+    ```
+
+  - If your table uses a primary key column name other than `id`, you may specify the name of the column when calling the `ignore` method:
+
+    ```php
+    Rule::unique('users')->ignore($user->id, 'user_id')
+    ```
+
+  - By default, the `unique` rule will check the uniqueness of the column matching the name of the attribute being validated. However, you may pass a different column name as the second argument to the `unique` method:
+
+    ```php
+    Rule::unique('users', 'email_address')->ignore($user->id)
+    ```
+
+- Method Field(Blade)
+
+  - Since HTML forms can't make `PUT`, `PATCH`, or `DELETE` requests, you will need to add a hidden `_method` field to spoof these HTTP verbs. The `@method` Blade directive can create this field for you:
+
+    ```php
+    <form action="/foo/bar" method="POST">
+        @method('PUT')
+
+        ...
+    </form>
+    ```
+
 ## 68. Group and Store Validation Logic
 
 ## 69. All About Authorization
