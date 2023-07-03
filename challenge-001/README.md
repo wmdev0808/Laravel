@@ -5198,6 +5198,15 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 65. Extract Form-Specific Blade Components
 
+- Things You'll Learn
+
+  - Form HTML Refactoring
+  - Form Blade Components
+
+- About
+
+  In this video, you'll learn how to clean up the HTML for a form by extracting a series of reusable "pieces" that can be used to construct each section. We'll of course use Blade components to allow for this.
+
 ## 66. Extend the Admin Layout
 
 ## 67. Create a Form to Edit and Delete Posts
