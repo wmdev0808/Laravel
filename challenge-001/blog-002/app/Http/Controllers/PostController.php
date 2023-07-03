@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller
@@ -26,5 +27,22 @@ class PostController extends Controller
     public function create()
     {
         return view('posts.create');
+    }
+
+    public function store()
+    {
+        $attributes = request()->validate([
+            'title' => 'required',
+            'slug' => ['required', Rule::unique('posts', 'slug')],
+            'excerpt' => 'required',
+            'body' => 'required',
+            'category_id' => ['required', Rule::exists('categories', 'id')]
+        ]);
+
+        $attributes['user_id'] = auth()->id();
+
+        Post::create($attributes);
+
+        return redirect('/');
     }
 }

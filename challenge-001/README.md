@@ -5079,6 +5079,16 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 63. Create the Publish Post Form
 
+- Things You'll Learn
+
+  - Unique Validation Rule
+  - Exists Validation Rule
+  - Old Session Data
+
+- About
+
+  Okay, now that we've taken a first stab at adding some route authorization, let's now finish building the "Publish Post" form.
+
 ## 64. Validate and Store Post Thumbnails
 
 ## 65. Extract Form-Specific Blade Components
