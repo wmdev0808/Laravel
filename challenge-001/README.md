@@ -5091,6 +5091,111 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 64. Validate and Store Post Thumbnails
 
+- Things You'll Learn
+
+  - Validate Images
+  - Upload Images
+  - Filesystems
+
+- About
+
+  In this video, you'll learn how to upload images to your local disk using a standard file input and Laravel's `UploadedFile` class. It's so easy!
+
+- Validating Files
+
+  - Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient:
+
+    ```php
+    use Illuminate\Support\Facades\Validator;
+    use Illuminate\Validation\Rules\File;
+
+    Validator::validate($input, [
+        'attachment' => [
+            'required',
+            File::types(['mp3', 'wav'])
+                ->min(1024)
+                ->max(12 * 1024),
+        ],
+    ]);
+    ```
+
+  - If your application accepts images uploaded by your users, you may use the `File` rule's `image` constructor method to indicate that the uploaded file should be an image. In addition, the dimensions rule may be used to limit the `dimensions` of the image:
+
+    ```php
+    use Illuminate\Support\Facades\Validator;
+    use Illuminate\Validation\Rule;
+    use Illuminate\Validation\Rules\File;
+
+    Validator::validate($input, [
+        'photo' => [
+            'required',
+            File::image()
+                ->min(1024)
+                ->max(12 * 1024)
+                ->dimensions(Rule::dimensions()->maxWidth(1000)->maxHeight(500)),
+        ],
+    ]);
+    ```
+
+  - File Types
+
+    - Even though you only need to specify the extensions when invoking the `types` method, this method actually validates the MIME type of the file by reading the file's contents and guessing its MIME type. A full listing of MIME types and their corresponding extensions may be found at the following location:
+
+      - https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+
+- File Storage
+
+  - Introduction
+
+    - Laravel provides a powerful filesystem abstraction thanks to the wonderful [Flysystem](https://github.com/thephpleague/flysystem) PHP package by Frank de Jonge. The Laravel Flysystem integration provides simple drivers for working with local filesystems, SFTP, and Amazon S3. Even better, it's amazingly simple to switch between these storage options between your local development machine and production server as the API remains the same for each system.
+
+  - Configuration
+
+    - Laravel's filesystem configuration file is located at `config/filesystems.php`. Within this file, you may configure all of your filesystem "disks". Each disk represents a particular storage driver and storage location. Example configurations for each supported driver are included in the configuration file so you can modify the configuration to reflect your storage preferences and credentials.
+
+    - The `local` driver interacts with files stored locally on the server running the Laravel application while the `s3` driver is used to write to Amazon's S3 cloud storage service.
+
+    - You may configure as many disks as you like and may even have multiple disks that use the same driver.
+
+    - The Local Driver
+
+      - When using the `local` driver, all file operations are relative to the `root` directory defined in your `filesystems` configuration file. By default, this value is set to the `storage/app` directory. Therefore, the following method would write to `storage/app/example.txt`:
+
+        ```php
+        use Illuminate\Support\Facades\Storage;
+
+        Storage::disk('local')->put('example.txt', 'Contents');
+        ```
+
+    - The Public Disk
+
+      - The `public` disk included in your application's `filesystems` configuration file is intended for files that are going to be publicly accessible. By default, the `public` disk uses the `local` driver and stores its files in `storage/app/public`.
+
+      - To make these files accessible from the web, you should create a symbolic link from `public/storage` to `storage/app/public`. Utilizing this folder convention will keep your publicly accessible files in one directory that can be easily shared across deployments when using zero down-time deployment systems like [Envoyer](https://envoyer.io/).
+
+      - To create the symbolic link, you may use the `storage:link` Artisan command:
+
+            php artisan storage:link
+
+      - Once a file has been stored and the symbolic link has been created, you can create a URL to the files using the `asset` helper:
+
+        ```php
+        echo asset('storage/file.txt');
+        ```
+
+      - You may configure additional symbolic links in your `filesystems` configuration file. Each of the configured links will be created when you run the `storage:link` command:
+
+        ```php
+        'links' => [
+            public_path('storage') => storage_path('app/public'),
+            public_path('images') => storage_path('app/images'),
+        ],
+        ```
+
+- Set filesystem disk to public in .env
+
+      FILESYSTEM_DISK=public
+
 ## 65. Extract Form-Specific Blade Components
 
 ## 66. Extend the Admin Layout
