@@ -6453,3 +6453,27 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 # 13. Conclusion
 
 ## 70. Goodbye and Next Steps
+
+- Things You'll Learn
+
+  - Further Learning
+
+- About
+
+  All things must come to an end, including this very long series. So congratulations if you made it this far. In this final goodbye video, we quickly review what you've learned, as well as some recommended next steps in your learning. Thanks for sticking around!
+
+- Further resources:
+
+  - Queues
+  - Events
+  - Asset Bundling (Vite)
+    - 8.x
+      - Compiling Assets (Mix)
+  - Eloquent
+    - Relationships
+    - API Resources
+  - Artisan Console
+    - Writing Commands
+  - Testing
+    - HTTP Tests
+  - Notifications
