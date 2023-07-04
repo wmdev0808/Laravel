@@ -5286,6 +5286,282 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
 
 ## 68. Group and Store Validation Logic
 
+- Things You'll Learn
+
+  - Normalize Validation Rules
+  - Remove Duplication
+
+- About
+
+  You'll notice that our controller validation logic has now been mostly duplicated. In this lesson, we'll discuss the pros and cons of keeping that duplication, before learning how to normalize and extract it into a reusable method.
+
+- PHP
+
+  - Function arguments
+
+    - Default argument values
+
+      - A function may define default values for arguments using syntax similar to assigning a variable. The default is used only when the parameter is not specified; in particular, note that passing null does not assign the default value.
+
+        - Example #4 Use of default parameters in functions
+
+          ```php
+          <?php
+          function makecoffee($type = "cappuccino")
+          {
+              return "Making a cup of $type.\n";
+          }
+          echo makecoffee();
+          echo makecoffee(null);
+          echo makecoffee("espresso");
+          ?>
+          ```
+
+          - The above example will output:
+
+            ```
+            Making a cup of cappuccino.
+            Making a cup of .
+            Making a cup of espresso.
+            ```
+
+      - Default parameter values may be scalar values, arrays, the special type null, and as of PHP 8.1.0, objects using the `new ClassName()` syntax.
+
+        - Example #5 Using non-scalar types as default values
+
+          ```php
+          <?php
+          function makecoffee($types = array("cappuccino"), $coffeeMaker = NULL)
+          {
+              $device = is_null($coffeeMaker) ? "hands" : $coffeeMaker;
+              return "Making a cup of ".join(", ", $types)." with $device.\n";
+          }
+          echo makecoffee();
+          echo makecoffee(array("cappuccino", "lavazza"), "teapot");?>
+          ```
+
+        - Example #6 Using objects as default values (as of PHP 8.1.0)
+
+          ```php
+          <?php
+          class DefaultCoffeeMaker {
+              public function brew() {
+                  return 'Making coffee.';
+              }
+          }
+          class FancyCoffeeMaker {
+              public function brew() {
+                  return 'Crafting a beautiful coffee just for you.';
+              }
+          }
+          function makecoffee($coffeeMaker = new DefaultCoffeeMaker)
+          {
+              return $coffeeMaker->brew();
+          }
+          echo makecoffee();
+          echo makecoffee(new FancyCoffeeMaker);
+          ?>
+          ```
+
+      - The default value must be a constant expression, not (for example) a variable, a class member or a function call.
+
+      - Note that any optional arguments should be specified after any required arguments, otherwise they cannot be omitted from calls. Consider the following example:
+
+        - Example #7 Incorrect usage of default function arguments
+
+          ```php
+          <?php
+          function makeyogurt($container = "bowl", $flavour)
+          {
+              return "Making a $container of $flavour yogurt.\n";
+          }
+
+          echo makeyogurt("raspberry"); // "raspberry" is $container, not $flavour
+          ?>
+          ```
+
+          - The above example will output:
+
+            ```
+            Fatal error: Uncaught ArgumentCountError: Too few arguments to function makeyogurt(), 1 passed in example.php on line 42
+            ```
+
+      - Now, compare the above with this:
+
+        - Example #8 Correct usage of default function arguments
+
+          ```php
+          <?php
+          function makeyogurt($flavour, $container = "bowl")
+          {
+              return "Making a $container of $flavour yogurt.\n";
+          }
+
+          echo makeyogurt("raspberry"); // "raspberry" is $flavour
+          ?>
+          ```
+
+          - The above example will output:
+
+            ```
+            Making a bowl of raspberry yogurt.
+            ```
+
+      - As of PHP 8.0.0, `named arguments` can be used to skip over multiple optional parameters.
+
+        - Example #9 Correct usage of default function arguments
+
+          ```php
+          <?php
+          function makeyogurt($container = "bowl", $flavour = "raspberry", $style = "Greek")
+          {
+              return "Making a $container of $flavour $style yogurt.\n";
+          }
+
+          echo makeyogurt(style: "natural");
+          ?>
+          ```
+
+          - The above example will output:
+
+            ```
+            Making a bowl of raspberry natural yogurt.
+            ```
+
+      - As of PHP 8.0.0, declaring mandatory arguments after optional arguments is _deprecated_. This can generally be resolved by dropping the default value, since it will never be used. One exception to this rule are arguments of the form Type $param = null, where the `null` default makes the type implicitly nullable. This usage remains allowed, though it is recommended to use an explicit [nullable type](https://www.php.net/manual/en/language.types.declarations.php#language.types.declarations.nullable) instead.
+
+        - Example #10 Declaring optional arguments after mandatory arguments
+
+          ```php
+          <?php
+          function foo($a = [], $b) {} // Default not used; deprecated as of PHP 8.0.0
+          function foo($a, $b) {}      // Functionally equivalent, no deprecation notice
+
+          function bar(A $a = null, $b) {} // Still allowed; $a is required but nullable
+          function bar(?A $a, $b) {}       // Recommended
+          ?>
+          ```
+
+    - Variable-length argument lists
+
+      - PHP has support for variable-length argument lists in user-defined functions by using the `...` token.
+      - Note: It is also possible to achieve variable-length arguments by using `func_num_args()`, `func_get_arg()`, and `func_get_args()` functions. This technique is not recommended as it was used prior to the introduction of the `...` token.
+
+      - Argument lists may include the ... token to denote that the function accepts a variable number of arguments. The arguments will be passed into the given variable as an array:
+
+        - Example #11 Using ... to access variable arguments
+
+          ```php
+          <?php
+          function sum(...$numbers) {
+              $acc = 0;
+              foreach ($numbers as $n) {
+                  $acc += $n;
+              }
+              return $acc;
+          }
+
+          echo sum(1, 2, 3, 4);
+          ?>
+          ```
+
+          - The above example will output:
+
+            ```
+            10
+            ```
+
+      - ... can also be used when calling functions to unpack an array or [Traversable](https://www.php.net/manual/en/class.traversable.php) variable or literal into the argument list:
+
+        - Example #12 Using ... to provide arguments
+
+          ```php
+          <?php
+          function add($a, $b) {
+              return $a + $b;
+          }
+
+          echo add(...[1, 2])."\n";
+
+          $a = [1, 2];
+          echo add(...$a);
+          ?>
+          ```
+
+          - The above example will output:
+
+            ```
+            3
+            3
+            ```
+
+      - You may specify normal positional arguments before the ... token. In this case, only the trailing arguments that don't match a positional argument will be added to the array generated by ....
+
+      - It is also possible to add a [type declaration](https://www.php.net/manual/en/language.types.declarations.php) before the ... token. If this is present, then all arguments captured by ... must match that parameter type.
+
+        - Example #13 Type declared variable arguments
+
+          ```php
+          <?php
+          function total_intervals($unit, DateInterval ...$intervals) {
+              $time = 0;
+              foreach ($intervals as $interval) {
+                  $time += $interval->$unit;
+              }
+              return $time;
+          }
+
+          $a = new DateInterval('P1D');
+          $b = new DateInterval('P2D');
+          echo total_intervals('d', $a, $b).' days';
+
+          // This will fail, since null isn't a DateInterval object.
+          echo total_intervals('d', null);
+          ?>
+          ```
+
+          - The above example will output:
+
+            ```
+            3 days
+            Catchable fatal error: Argument 2 passed to total_intervals() must be an instance of DateInterval, null given, called in - on line 14 and defined in - on line 2
+            ```
+
+      - Finally, variable arguments can also be passed [by reference](https://www.php.net/manual/en/functions.arguments.php#functions.arguments.by-reference) by prefixing the ... with an ampersand (&).
+
+- Nullable type syntax sugar
+
+  - A single base type declaration can be marked nullable by prefixing the type with a question mark (?). Thus ?T and T|null are identical.
+
+  - Note: This syntax is supported as of PHP 7.1.0, and predates generalized union types support.
+
+  - Note:
+
+    - It is also possible to achieve nullable arguments by making null the default value. This is not recommended as if the default value is changed in a child class a type compatibility violation will be raised as the null type will need to be added to the type declaration.
+
+      - Example #2 Old way to make arguments nullable
+
+        ```php
+        <?php
+        class C {}
+
+        function f(C $c = null) {
+            var_dump($c);
+        }
+
+        f(new C);
+        f(null);
+        ?>
+        ```
+
+        - The above example will output:
+
+          ```php
+          object(C)#1 (0) {
+          }
+          NULL
+          ```
+
 ## 69. All About Authorization
 
 # 13. Conclusion
