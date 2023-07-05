@@ -6477,3 +6477,162 @@ We don't learn tools for the sake of learning tools. Instead, we learn them beca
   - Testing
     - HTTP Tests
   - Notifications
+
+# 71. Install Tailwind CSS with Laravel
+
+## Using Vite
+
+- 1. Create your project
+
+  - Start by creating a new Laravel project if you don’t have one set up already. The most common approach is to use the Composer `create-project` command.
+
+    ```
+    composer create-project laravel/laravel my-project
+    cd my-project
+    ```
+
+- 2. Install Tailwind CSS
+
+  - Install `tailwindcss` and its peer dependencies via npm, and then run the init command to generate both `tailwind.config.js` and `postcss.config.js`.
+
+    ```
+    npm install -D tailwindcss postcss autoprefixer
+    npx tailwindcss init -p
+    ```
+
+- 3. Configure your template paths
+
+  - Add the paths to all of your template files in your `tailwind.config.js` file.
+
+    ```js
+    /** @type {import('tailwindcss').Config} */
+    module.exports = {
+      content: [
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+        "./resources/**/*.vue",
+      ],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    };
+    ```
+
+- 4. Add the Tailwind directives to your CSS
+
+  - Add the `@tailwind` directives for each of Tailwind’s layers to your `./resources/css/app.css` file.
+
+    ```css
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+    ```
+
+- 5. Start your build process
+
+  - Run your build process with `npm run dev`.
+
+    ```
+    npm run dev
+    ```
+
+- 6. Start using Tailwind in your project
+
+  - Make sure your compiled CSS is included in the `<head>` then start using Tailwind’s utility classes to style your content.
+
+    ```php
+    <!doctype html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      @vite('resources/css/app.css')
+    </head>
+    <body>
+      <h1 class="text-3xl font-bold underline">
+        Hello world!
+      </h1>
+    </body>
+    </html>
+    ```
+
+## Using Laravel Mix
+
+- 1. Install Tailwind CSS
+
+  - Install `tailwindcss` and its peer dependencies via npm, and create your `tailwind.config.js` file.
+
+    ```
+    npm install -D tailwindcss postcss autoprefixer
+    npx tailwindcss init
+    ```
+
+- 2. Add Tailwind to your Laravel Mix configuration
+
+  - In your `webpack.mix.js` file, add `tailwindcss` as a PostCSS plugin.
+
+    ```js
+    mix
+      .js("resources/js/app.js", "public/js")
+      .postCss("resources/css/app.css", "public/css", [require("tailwindcss")]);
+    ```
+
+- 3. Configure your template paths
+
+  - Add the paths to all of your template files in your `tailwind.config.js` file.
+
+    ```js
+    /** @type {import('tailwindcss').Config} */
+    module.exports = {
+      content: [
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+        "./resources/**/*.vue",
+      ],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    };
+    ```
+
+- 4. Add the Tailwind directives to your CSS
+
+  - Add the` @tailwind` directives for each of Tailwind’s layers to your `./resources/css/app.css` file.
+
+    ```css
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+    ```
+
+- 5. Start your build process
+
+  - Run your build process with `npm run watch`.
+
+    ```
+    npm run watch
+    ```
+
+- 6. Start using Tailwind in your project
+
+  - Make sure your compiled CSS is included in the `<head>` then start using Tailwind’s utility classes to style your content.
+
+    - app.blade.php
+
+      ```php
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+      </head>
+      <body>
+        <h1 class="text-3xl font-bold underline">
+          Hello world!
+        </h1>
+      </body>
+      </html>
+      ```
