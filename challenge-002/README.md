@@ -132,4 +132,83 @@
 
     - resources/views/layouts/navigation.blade.php
 
+- **Saving the Chirp**
+
+  - Our form has been configured to post messages to the `chirps.store` route that we created earlier. Let's update the `store` method on our `ChirpController` class to validate the data and create a new Chirp:
+
+    - app/Http/Controllers/ChirpController.php
+
+      - We're using Laravel's powerful validation feature to ensure that the user provides a message and that it won't exceed the 255 character limit of the database column we'll be creating.
+
+      - We're then creating a record that will belong to the logged in user by leveraging a `chirps` relationship. We will define that relationship soon.
+
+      - Finally, we can return a redirect response to send users back to the `chirps.index` route.
+
+- **Creating a relationship**
+
+  - You may have noticed in the previous step that we called a `chirps` method on the `$request->user()` object. We need to create this method on our `User` model to define a ["has many"](https://laravel.com/docs/eloquent-relationships#one-to-many) relationship:
+
+    - app/Models/User.php
+
+- **Mass assignment protection**
+
+  - Passing all of the data from a request to your model can be risky. Imagine you have a page where users can edit their profiles. If you were to pass the entire request to the model, then a user could edit any column they like, such as an `is_admin` column. This is called a [mass assignment vulnerability](https://en.wikipedia.org/wiki/Mass_assignment_vulnerability).
+
+  - Laravel protects you from accidentally doing this by blocking mass assignment by default. Mass assignment is very convenient though, as it prevents you from having to assign each attribute one-by-one. We can enable mass assignment for safe attributes by marking them as "fillable".
+
+  - Let's add the `$fillable` property to our `Chirp` model to enable mass-assignment for the `message` attribute:
+
+    - app/Models/Chirp.php
+
+- **Updating the migration**
+
+  - The only thing missing is extra columns in our database to store the relationship between a `Chirp` and its `User` and the message itself. Remember the database migration we created earlier? It's time to open that file to add some extra columns:
+
+    - `databases/migration/<timestamp>_create_chirps_table.php`
+
+  - We haven't migrated the database since we added this migration, so let do it now:
+
+    ```
+    php artisan migrate
+    ```
+
+  - Note: Each database migration will only be run once. To make additional changes to a table, you will need to create another migration. During development, you may wish to update an undeployed migration and rebuild your database from scratch using the `php artisan migrate:fresh` command.
+
+- **Testing it out**
+
+  - We're now ready to send a Chirp using the form we just created! We won't be able to see the result yet because we haven't displayed existing Chirps on the page.
+
+  - If you leave the message field empty, or enter more than 255 characters, then you'll see the validation in action.
+
+  - Artisan Tinker
+
+    - This is great time to learn about [Artisan Tinker](https://laravel.com/docs/artisan#tinker), a REPL ([Read-eval-print loop](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop)) where you can execute arbitrary PHP code in your Laravel application.
+
+    - In your console, start a new tinker session:
+
+      ```
+      php artisan tinker
+      ```
+
+    - Next, execute the following code to display the Chirps in your database:
+
+      ```
+      > \App\Models\Chirp::all();
+      = Illuminate\Database\Eloquent\Collection {#7199
+          all: [
+            App\Models\Chirp {#7201
+              id: 1,
+              user_id: 1,
+              message: "I'm building Chirper with Laravel!",
+              created_at: "2023-07-06 14:29:14",
+              updated_at: "2023-07-06 14:29:14",
+            },
+          ],
+        }
+
+      >
+      ```
+
+    - You may exit Tinker by using the `exit` command, or by pressing `Ctrl + c`.
+
 ## Build Chirper with Inertia
