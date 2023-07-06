@@ -98,4 +98,38 @@
 
   - Not impressed yet? Let's update the `index` method of our `ChirpController` class to render a Blade view:
 
+    - app/Http/Controllers/ChirpController.php
+
+  - We can then create our Blade view template with a form for creating new Chirps:
+
+    - resources/views/chirps/index.blade.php
+
+    - Ref: Displaying The Validation Errors
+
+      - An `$errors` variable is shared with all of your application's views by the `Illuminate\View\Middleware\ShareErrorsFromSession` middleware, which is provided by the `web` middleware group. When this middleware is applied an `$errors` variable will always be available in your views, allowing you to conveniently assume the `$errors` variable is always defined and can be safely used. The `$errors` variable will be an instance of `Illuminate\Support\MessageBag`.
+
+    - Ref: Retrieving Translation Strings
+
+      - You may retrieve translation strings from your language files using the `__` helper function. If you are using "short keys" to define your translation strings, you should pass the file that contains the key and the key itself to the `__` function using "dot" syntax. For example, let's retrieve the `welcome` translation string from the `lang/en/messages.php` language file:
+
+        ```php
+        echo __('messages.welcome');
+        ```
+
+      - If the specified translation string does not exist, the `__` function will return the translation string key. So, using the example above, the `__` function would return `messages.welcome` if the translation string does not exist.
+
+    - If your screenshot doesn't look quite like the above, you may need to stop and start the Vite development server for Tailwind to detect the CSS classes in the new file we just created.
+
+- **Navigation menu**
+
+  - Let's take a moment to add a link to the navigation menu provided by Breeze.
+
+  - Update the `navigation.blade.php` component provided by Breeze to add a menu item for desktop screens:
+
+    - resources/views/layouts/navigation.blade.php
+
+  - And also for mobile screens:
+
+    - resources/views/layouts/navigation.blade.php
+
 ## Build Chirper with Inertia
