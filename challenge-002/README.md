@@ -344,4 +344,186 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 ### Notifications & Events
 
+- Let's take Chirper to the next level by sending [email notifications](https://laravel.com/docs/notifications#introduction) when a new Chirp is created.
+
+- In addition to support for sending email, Laravel provides support for sending notifications across a variety of delivery channels, including email, SMS, and Slack. Plus, a variety of community built notification channels have been created to send notification over dozens of different channels! Notifications may also be stored in a database so they may be displayed in your web interface.
+
+- **Creating the notification**
+
+  - Artisan can, once again, do all the hard work for us with the following command:
+
+    ```
+    php artisan make:notification NewChirp
+    ```
+
+    - This will create a new notification at `app/Notifications/NewChirp.php` that is ready for us to customize.
+
+  - Let's open the `NewChirp` class and allow it to accept the `Chirp` that was just created, and then customize the message to include the author's name and a snippet from the message:
+
+    - app/Notifications/NewChirp.php
+
+  - We could send the notification directly from the `store` method on our `ChirpController` class, but that adds more work for the controller, which in turn can slow down the request, especially as we'll be querying the database and sending emails.
+
+  - Instead, let's dispatch an event that we can listen for and process in a background queue to keep our application snappy.
+
+- **Creating an event**
+
+  - Events are a great way to decouple various aspects of your application, since a single event can have multiple listeners that do not depend on each other.
+
+  - Let's create our new event with the following command:
+
+    ```
+    php artisan make:event ChirpCreated
+    ```
+
+    - This will create a new event class at `app/Events/ChirpCreated.php`.
+
+  - Since we'll be dispatching events for each new Chirp that is created, let's update our `ChirpCreated` event to accept the newly created `Chirp` so we may pass it on to our notification:
+
+    - app/Events/ChirpCreated.php
+
+- **Dispatching the event**
+
+  - Now that we have our event class, we're ready to dispatch it any time a Chirp is created. You may [dispatch events](https://laravel.com/docs/events#dispatching-events) anywhere in your application lifecycle, but as our event relates to the creation of an Eloquent model, we can configure our `Chirp` model to dispatch the event for us.
+
+    - app/Models/Chirp.php
+
+    - **Ref**: Eloquent Events
+
+      - Eloquent models dispatch several events, allowing you to hook into the following moments in a model's lifecycle: `retrieved`, `creating`, `created`, `updating`, `updated`, `saving`, `saved`, `deleting`, `deleted`, `trashed`, `forceDeleting`, `forceDeleted`, `restoring`, `restored`, and `replicating`.
+
+      - The `retrieved` event will dispatch when an existing model is retrieved from the database. When a new model is saved for the first time, the `creating` and `created` events will dispatch. The `updating` / `updated` events will dispatch when an existing model is modified and the `save` method is called. The `saving` / `saved` events will dispatch when a model is created or updated - even if the model's attributes have not been changed. Event names ending with `-ing` are dispatched before any changes to the model are persisted, while events ending with `-ed` are dispatched after the changes to the model are persisted.
+
+      - To start listening to model events, define a `$dispatchesEvents` property on your Eloquent model. This property maps various points of the Eloquent model's lifecycle to your own [event classes](https://laravel.com/docs/10.x/events). Each model event class should expect to receive an instance of the affected model via its constructor:
+
+      ```php
+      <?php
+
+      namespace App\Models;
+
+      use App\Events\UserDeleted;
+      use App\Events\UserSaved;
+      use Illuminate\Foundation\Auth\User as Authenticatable;
+      use Illuminate\Notifications\Notifiable;
+
+      class User extends Authenticatable
+      {
+          use Notifiable;
+
+          /**
+          * The event map for the model.
+          *
+          * @var array
+          */
+          protected $dispatchesEvents = [
+              'saved' => UserSaved::class,
+              'deleted' => UserDeleted::class,
+          ];
+      }
+      ```
+
+      - After defining and mapping your Eloquent events, you may use [event listeners](https://laravel.com/docs/10.x/events#defining-listeners) to handle the events.
+
+      - Note: When issuing a mass update or delete query via Eloquent, the `saved`, `updated`, `deleting`, and `deleted` model events will not be dispatched for the affected models. This is because the models are never actually retrieved when performing mass updates or deletes.
+
+    - Now any time a new `Chirp` is created, the `ChirpCreated` event will be dispatched.
+
+- **Creating an event listener**
+
+  - Now that we're dispatching an event, we're ready to listen for that event and send our notification.
+
+  - Let's create a listener that subscribes to our `ChirpCreated` event:
+
+    ```
+    php artisan make:listener SendChirpCreatedNotifications --event=ChirpCreated
+    ```
+
+  - The new listener will be placed at `app/Listeners/SendChirpCreatedNotifications.php`. Let's update the listener to send our notifications.
+
+    - app/Listeners/SendChirpCreatedNotifications.php
+
+    - We've marked our listener with the `ShouldQueue` interface, which tells Laravel that the listener should be run in a [queue](https://laravel.com/docs/queues). By default, the "sync" queue will be used to process jobs synchronously; however, you may configure a queue worker to process jobs in the background.
+
+    - We've also configured our listener to send notifications to every user in the platform, except the author of the Chirp. In reality, this might annoy users, so you may want to implement a "following" feature so users only receive notifications for accounts they follow.
+
+    - We've used a [database cursor](https://laravel.com/docs/eloquent#cursors) to avoid loading every user into memory at once.
+
+      - Eloquent Cursors
+
+        - Similar to the `lazy` method, the `cursor` method may be used to significantly reduce your application's memory consumption when iterating through tens of thousands of Eloquent model records.
+
+        - The `cursor` method will only execute a single database query; however, the individual Eloquent models will not be hydrated until they are actually iterated over. Therefore, only one Eloquent model is kept in memory at any given time while iterating over the cursor.
+
+        - Note: Since the `cursor` method only ever holds a single Eloquent model in memory at a time, it cannot eager load relationships. If you need to eager load relationships, consider using [the **lazy** method](https://laravel.com/docs/10.x/eloquent#chunking-using-lazy-collections) instead.
+
+        - Internally, the `cursor` method uses PHP [generators](https://www.php.net/manual/en/language.generators.overview.php) to implement this functionality:
+
+          ```php
+          use App\Models\Flight;
+
+          foreach (Flight::where('destination', 'Zurich')->cursor() as $flight) {
+          // ...
+          }
+          ```
+
+        - The `cursor` returns an `Illuminate\Support\LazyCollection` instance. [Lazy collections](https://laravel.com/docs/10.x/collections#lazy-collections) allow you to use many of the collection methods available on typical Laravel collections while only loading a single model into memory at a time:
+
+          ```php
+          use App\Models\User;
+
+          $users = User::cursor()->filter(function (User $user) {
+              return $user->id > 500;
+          });
+
+          foreach ($users as $user) {
+              echo $user->id;
+          }
+          ```
+
+        - Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the **lazy** method](https://laravel.com/docs/10.x/eloquent#chunking-using-lazy-collections) instead.
+
+  - Note: In a production application you should add the ability for your users to unsubscribe from notifications like these.
+
+  - **Registering the event listener**
+
+    - Finally, let's bind our event listener to the event. This will tell Laravel to invoke our event listener when the corresponding event is dispatched. We can do this within our `EventServiceProvider` class:
+
+      - App\Providers\EventServiceProvider.php
+
+- **Testing it out**
+
+  - You may utilize local email testing tools like [Mailpit](https://github.com/axllent/mailpit) and [HELO](https://usehelo.com/) to catch any emails coming from your application so you may view them. If you are developing via Docker and Laravel Sail then Mailpit is included for you.
+
+  - Alternatively, you may configure Laravel to write mail to a log file by editing the `.env` file in your project and changing the `MAIL_MAILER` environment variable to `log`. By default, emails will be written to a log file located at `storage/logs/laravel.log`.
+
+  - We've configured our notification not to send to the Chirp author, so be sure to register at least two users accounts. Then, go ahead and post a new Chirp to trigger a notification.
+
+  - If you're using Mailpit, navigate to http://localhost:8025/, where you will find the notification for the message you just chirped!
+
+    - Ref: Mailpit Setup
+
+      - Install via bash script (Linux & Mac)
+
+        - Linux & Mac users can install it directly to `/usr/local/bin/mailpit` with:
+
+          ```
+          sudo bash < <(curl -sL https://raw.githubusercontent.com/axllent/mailpit/develop/install.sh)
+          ```
+
+      - Run Mailpit
+
+        ```
+        mailpit
+        ```
+
+      - Note: .env setup for Mailpit
+
+        - MAIL_HOST=localhost
+
+          - `mailpit` is set as the default to work with Laravel Sail, since Docker handles the resolution of the service. If you're not using Laravel Sail and Docker `localhost` must be used since your local machine cannot resolve the namespace.
+
+  - **Sending emails in production**
+
+    - To send real emails in production, you will need an SMTP server, or a transactional email provider, such as Mailgun, Postmark, or Amazon SES. Laravel supports all of these out of the box. For more information, take a look at the [Mail documentation](https://laravel.com/docs/mail#introduction)
+
 ## Build Chirper with Inertia
