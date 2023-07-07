@@ -298,6 +298,50 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 ### Deleting Chirps
 
+- Sometimes no amount of editing can fix a message, so let's give our users the ability to delete their Chirps.
+
+- Hopefully you're starting to get the hang of things now. We think you'll be impressed how quickly we can add this feature.
+
+- **Routing**
+
+  - We'll start again by updating our routes to enable the `chirps.destroy` route:
+
+    - routes/web.php
+
+  - Our route table for this controller now looks like this:
+
+    | Verb      | URI                  | Action  | Route Name     |
+    | --------- | -------------------- | ------- | -------------- |
+    | GET       | /chirps              | index   | chirps.index   |
+    | POST      | /chirps              | store   | chirps.store   |
+    | GET       | /chirps/{chirp}/edit | edit    | chirps.edit    |
+    | PUT/PATCH | /chirps/{chirp}      | update  | chirps.update  |
+    | DELETE    | /chirps/{chirp}      | destroy | chirps.destroy |
+
+- **Updating our controller**
+
+  - Now we can update the `destroy` method on our `ChirpController` class to perform the deletion and return to the Chirp index:
+
+    - app/Http/Controllers/ChirpController.php
+
+- **Authorization**
+
+  - As with editing, we only want our Chirp authors to be able to delete their Chirps, so let's update the `delete` method in our `ChirpPolicy` class:
+
+    - app/Policies/ChirpPolicy.php
+
+  - Rather than repeating the logic from the `update` method, we can define the same logic by calling the `update` method from our `destroy` method. Anyone that is authorized to update a Chirp will now be authorized to delete it as well.
+
+- **Updating our view**
+
+  - Finally, we can add a delete button to the dropdown menu we created earlier in our `chirps.index` view:
+
+    - resources/views/chirps/index.blade.php
+
+- **Testing it out**
+
+  - If you Chirped anything you weren't happy with, try deleting it!
+
 ### Notifications & Events
 
 ## Build Chirper with Inertia
