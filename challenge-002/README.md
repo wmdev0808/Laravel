@@ -211,4 +211,36 @@
 
     - You may exit Tinker by using the `exit` command, or by pressing `Ctrl + c`.
 
+### Showing Chirps
+
+- **Retrieving the Chirps**
+
+  - Let's update the `index` method on our `ChirpController` class to pass Chirps from every user to our index page:
+
+    - app/Http/Controllers/ChirpController.php
+
+    - Here we've used Eloquent's `with` method to `eager-load` every Chirp's associated user. We've also used the `latest` scope to return the records in reverse-chronological order.
+
+  - Note: Returning all Chirps at once won't scale in production. Take a look at Laravel's powerful [pagination](https://laravel.com/docs/pagination) to improve performance.
+
+- **Connecting users to Chirps**
+
+  - We've instructed Laravel to return the `user` relationship so that we can display the name of the Chirp's author. But, the Chirp's `user` relationship hasn't been defined yet. To fix this, let's add a new ["belongs to"](https://laravel.com/docs/eloquent-relationships#one-to-many-inverse) relationship to our `Chirp` model:
+
+    - app/Models/Chirp.php
+
+  - This relationship is the inverse of the "has many" relationship we created earlier on the `User` model.
+
+- **Updating our view**
+
+  - Next, let's update our `chirps.index` component to display the Chirps below our form:
+
+    - resources/views/chirps/index.blade.php
+
+### Editing Chirps
+
+### Deleting Chirps
+
+### Notifications & Events
+
 ## Build Chirper with Inertia
