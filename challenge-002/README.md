@@ -239,6 +239,63 @@
 
 ### Editing Chirps
 
+Let's add a feature that's missing from other popular bird-themed microblogging platforms — the ability to edit Chirps!
+
+- **Routing**
+
+  - First we will update our routes file to enable the `chirps.edit` and chirps.update routes for our resource controller. The `chirps.edit` route will display the form for editing a Chirp, while the `chirps.update` route will accept the data from the form and update the model:
+
+    - routes/web.php
+
+  - Our route table for this controller now looks like this:
+
+    | Verb      | URI                  | Action | Route Name    |
+    | --------- | -------------------- | ------ | ------------- |
+    | GET       | /chirps              | index  | chirps.index  |
+    | POST      | /chirps              | store  | chirps.store  |
+    | GET       | /chirps/{chirp}/edit | edit   | chirps.edit   |
+    | PUT/PATCH | /chirps/{chirp}      | update | chirps.update |
+
+- **Linking to the edit page**
+
+  - Next, let's link our new `chirps.edit` route. We'll use the `x-dropdown` component that comes with Breeze, which we'll only display to the Chirp author. We'll also display an indication if a Chirp has been edited by comparing the Chirp's `created_at` date with its `updated_at` date:
+
+    - resources/views/chirps/index.blade.php
+
+- **Creating the edit form**
+
+  - Let's create a new Blade view with a form for editing a Chirp. This is similar to the form for creating Chirps, except we'll post to the `chirps.update` route and use the `@method` directive to specify that we're making a "PATCH" request. We'll also pre-populate the field with the existing Chirp message:
+
+    - resources/views/chirps/edit.blade.php
+
+- **Updating our controller**
+
+  - Let's update the `edit` method on our `ChirpController` to display our form. Laravel will automatically load the Chirp model from the database using [route model binding](https://laravel.com/docs/9.x/routing#route-model-binding) so we can pass it straight to the view.
+
+  - We'll then `update` the update method to validate the request and update the database.
+
+  - Even though we're only displaying the edit button to the author of the Chirp, we still need to make sure the user accessing these routes is authorized:
+
+    - app/Http/Controllers/ChirpController.php
+
+  - Note: You may have noticed the validation rules are duplicated with the `store` method. You might consider extracting them using Laravel's [Form Request Validation](https://laravel.com/docs/validation#form-request-validation), which makes it easy to re-use validation rules and to keep your controllers light.
+
+- **Authorization**
+
+  - By default, the `authorize` method will prevent everyone from being able to update the Chirp. We can specify who is allowed to update it by creating a [Model Policy](https://laravel.com/docs/authorization#creating-policies) with the following command:
+
+    ```
+    php artisan make:policy ChirpPolicy --model=Chirp
+    ```
+
+    - This will create a policy class at `app/Policies/ChirpPolicy.php` which we can update to specify that only the author is authorized to update a Chirp:
+
+      - app/Policies/ChirpPolicy.php
+
+- **Testing it out**
+
+  - Time to test it out! Go ahead and edit a few Chirps using the dropdown menu. If you register another user account, you'll see that only the author of a Chirp can edit it.
+
 ### Deleting Chirps
 
 ### Notifications & Events
