@@ -717,6 +717,22 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 ### Editing Chirps
 
+- **Routing**
+
+- **Updating our component**
+
+  - Next, let's update our `Chirp` component to have an edit form for existing Chirps.
+
+  - We're going to use the `Dropdown` component that comes with Breeze, which we'll only display to the Chirp author. We'll also display an indication if a Chirp has been edited by comparing the Chirp's `created_at` date with its `updated_at` date:
+
+    - resources/js/Components/Chirp.jsx
+
+- **Updating our controller**
+
+- **Authorization**
+
+- Testing it out
+
 ### Deleting Chirps
 
 ### Notifications & Events
