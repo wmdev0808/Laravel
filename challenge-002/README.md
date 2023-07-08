@@ -675,6 +675,46 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 ### Showing Chirps
 
+- **Retrieving the Chirps**
+
+  - Let's update the `index` method our `ChirpController` class to pass Chirps from every user to our Index page:
+
+    - app/Http/Controllers/ChirpController.php
+
+    - Here we've used Eloquent's `with` method to [eager-load](https://laravel.com/docs/eloquent-relationships#eager-loading) every Chirp's associated user's ID and name. We've also used the `latest` scope to return the records in reverse-chronological order.
+
+- **Connecting users to Chirps**
+
+- **Updating our component**
+
+  - Next, let's create a `Chirp` component for our front-end. This component will be responsible for displaying an individual Chirp:
+
+    - resources/js/Components/Chirp.jsx
+
+  - Finally, we will update our `Chirps/Index` page component to accept the `chirps` prop and render the Chirps below our form using our new component:
+
+    - resources/js/Pages/Chirps/Index.jsx
+
+  - Now take a look in your browser to see the message you Chirped earlier!
+
+  - **Extra Credit: Relative dates**
+
+    - In our `Chirp` component we formatted the dates to be human-readable, but we can take that one step further by displaying relative dates using the popular [Day.js](https://day.js.org/) library.
+
+    - First, install the dayjs NPM package:
+
+      ```
+      npm install dayjs
+      ```
+
+    - Then we can use this library in our `Chirp` component to display relative dates:
+
+      - resources/js/Components/Chirp.jsx
+
+    - Take a look in the browser to see your relative dates.
+
+  - Feel free to Chirp some more, or even register another account and start a conversation!
+
 ### Editing Chirps
 
 ### Deleting Chirps
