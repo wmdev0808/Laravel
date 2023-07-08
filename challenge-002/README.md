@@ -751,6 +751,20 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 ### Notifications & Events
 
+- **Creating the notification**
+
+- **Creating an event**
+
+- **Dispatching the event**
+
+- **Creating an event listener**
+
+  - **Registering the event listener**
+
+- **Testing it out**
+
+  - **Sending emails in production**
+
 ## Deploying
 
 ## Conclusion
