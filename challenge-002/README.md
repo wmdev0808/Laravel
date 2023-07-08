@@ -635,6 +635,44 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 ### Creating Chirps
 
+- **Inertia**
+
+  - Not impressed yet? Let's update the `index` method of our `ChirpController` class to render a front-end page component using Inertia. Inertia is what links our Laravel application with our Vue or React front-end:
+
+    - app/Http/Controllers/ChirpController.php
+
+  - We can then create our front-end `Chirps/Index` page component with a form for creating new Chirps:
+
+    - resources/js/Pages/Chirps/Index.jsx
+
+  - That's it! Refresh the page in your browser to see your new form rendered in the default layout provided by Breeze!
+
+  - Now that our front-end is powered by JavaScript, any changes we make to our JavaScript templates will be automatically reloaded in the browser whenever the Vite development server is running via `npm run dev`.
+
+- **Navigation menu**
+
+  - Let's take a moment to add a link to the navigation menu provided by Breeze.
+
+  - Update the `AuthenticatedLayout` component provided by Breeze to add a menu item for desktop screens:
+
+    - resources/js/Layouts/AuthenticatedLayout.jsx
+
+  - And also for mobile screens:
+
+    - resources/js/Layouts/AuthenticatedLayout.jsx
+
+- **Saving the Chirp**
+
+- **Creating a relationship**
+
+- **Mass assignment protection**
+
+- **Updating the migration**
+
+- **Testing it out**
+
+  - Artisan Tinker
+
 ### Showing Chirps
 
 ### Editing Chirps
