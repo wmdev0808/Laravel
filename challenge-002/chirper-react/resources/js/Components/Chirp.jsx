@@ -75,6 +75,13 @@ export default function Chirp({ chirp }) {
                                 >
                                     Edit
                                 </button>
+                                <Dropdown.Link
+                                    as="button"
+                                    href={route("chirps.destroy", chirp.id)}
+                                    method="delete"
+                                >
+                                    Delete
+                                </Dropdown.Link>
                             </Dropdown.Content>
                         </Dropdown>
                     )}

@@ -735,6 +735,20 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
 
 ### Deleting Chirps
 
+- **Routing**
+
+- **Updating our controller**
+
+- **Authorization**
+
+- **Updating our component**
+
+  - Finally, we can add a delete button to the dropdown menu we created earlier in our `Chirp` component:
+
+    - resources/js/Components/Chirp.jsx
+
+- **Testing it out**
+
 ### Notifications & Events
 
 ## Deploying
