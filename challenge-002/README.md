@@ -617,6 +617,35 @@ Let's add a feature that's missing from other popular bird-themed microblogging 
       php artisan breeze:install vue
       ```
 
+    - TypeScript
+
+      ```
+      php artisan breeze:install --typescript
+      ```
+
+      =>
+
+      ```
+      Which stack would you like to install?
+      blade ............................ 0
+      react ............................ 1
+      vue .............................. 2
+      api .............................. 3
+      ❯ 1
+
+      Would you like to install dark mode support? (yes/no) [no]
+      ❯ yes
+
+      Would you like TypeScript support? (Experimental): (yes/no) [no]
+      ❯ yes
+
+      Would you like to install Inertia SSR support? (yes/no) [no]
+      ❯ yes
+
+      Would you prefer Pest tests instead of PHPUnit? (yes/no) [no]
+      ❯ yes
+      ```
+
   - Breeze will install and configure your front-end dependencies for you, so we just need to start the Vite development server to enable instant hot-module replacement while we build our application:
 
     ```
