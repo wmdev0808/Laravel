@@ -1,11 +1,15 @@
-import React, { FormEventHandler } from "react";
+import { FormEventHandler } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { useForm, Head } from "@inertiajs/react";
-import { PageProps } from "@/types";
+import { ChirpType, PageProps } from "@/types";
+import Chirp from "@/Components/Chirp";
 
-export default function Index({ auth }: PageProps) {
+export default function Index({
+    auth,
+    chirps,
+}: PageProps<{ chirps: ChirpType[] }>) {
     const { data, setData, post, processing, reset, errors } = useForm({
         message: "",
     });
@@ -32,6 +36,12 @@ export default function Index({ auth }: PageProps) {
                         Chirp
                     </PrimaryButton>
                 </form>
+
+                <div className="mt-6 bg-white shadow-sm rounded-lg divide-y">
+                    {chirps.map((chirp) => (
+                        <Chirp key={chirp.id} chirp={chirp} />
+                    ))}
+                </div>
             </div>
         </AuthenticatedLayout>
     );
