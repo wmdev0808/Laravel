@@ -8,6 +8,7 @@ import { ref } from "vue";
 import InputError from "./InputError.vue";
 import PrimaryButton from "./PrimaryButton.vue";
 import Dropdown from "./Dropdown.vue";
+import DropdownLink from "./DropdownLink.vue";
 
 dayjs.extend(relativeTime);
 
@@ -72,6 +73,13 @@ const editing = ref(false);
                         >
                             Edit
                         </button>
+                        <DropdownLink
+                            as="button"
+                            :href="route('chirps.destroy', chirp.id)"
+                            method="delete"
+                        >
+                            Delete
+                        </DropdownLink>
                     </template>
                 </Dropdown>
             </div>
