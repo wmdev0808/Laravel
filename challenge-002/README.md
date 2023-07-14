@@ -960,3 +960,328 @@ Here are a few of our favorite features that you might like to consider:
 - [Administration Panels](https://nova.laravel.com/?ref=bootcamp.laravel.com)
 - [Server Management](https://forge.laravel.com/?ref=bootcamp.laravel.com)
 - [Serverless Deployment](https://vapor.laravel.com/?ref=bootcamp.laravel.com)
+
+## Server-side Rendering (SSR)
+
+Server-side rendering pre-renders your JavaScript pages on the server, allowing your visitors to receive fully rendered HTML when they visit your application. Since fully rendered HTML is served by your application, it's also easier for search engines to index your site.
+
+- Note: Server-side rendering uses Node.js to render your pages in a background process; therefore, Node must be available on your server for server-side rendering to function properly.
+
+### Laravel starter kits
+
+If you are using [Laravel Breeze or Jetstream](https://laravel.com/docs/starter-kits), you may install the starter kit's scaffolding with Inertia SSR support pre-configured using the `--ssr` flag.
+
+```
+php artisan breeze:install react --ssr
+php artisan breeze:install vue --ssr
+```
+
+### Install dependencies
+
+If you are not using a Laravel starter kit and would like to manually configure SSR, we'll first install the additional dependencies required for server-side rendering. This is only necessary for the Vue adapters, so you can skip this step if you're using React or Svelte.
+
+- Vue 2
+
+  ```
+  npm install vue-server-renderer
+  ```
+
+- Vue 3
+
+  ```
+  npm install @vue/server-renderer
+  ```
+
+- React
+
+  ```
+  // No additional dependencies required
+  ```
+
+- Svelte
+
+  ```
+  // No additional dependencies required
+  ```
+
+Then, make sure you have the latest version of the Inertia Laravel adapter installed:
+
+```
+composer require inertiajs/inertia-laravel
+```
+
+### Add server entry-point
+
+Next, we'll create a `resources/js/ssr.js` file within our Laravel project that will serve as our SSR entry point.
+
+```
+touch resources/js/ssr.js
+```
+
+This file is going to look very similar to your `resources/js/app.js` file, except it's not going to run in the browser, but rather in Node.js. Here's a complete example.
+
+- Vue 2
+
+  ```js
+  import { createInertiaApp } from "@inertiajs/vue2";
+  import createServer from "@inertiajs/vue2/server";
+  import Vue from "vue";
+  import { createRenderer } from "vue-server-renderer";
+
+  createServer((page) =>
+    createInertiaApp({
+      page,
+      render: createRenderer().renderToString,
+      resolve: (name) => {
+        const pages = import.meta.glob("./Pages/**/*.vue", { eager: true });
+        return pages[`./Pages/${name}.vue`];
+      },
+      setup({ App, props, plugin }) {
+        Vue.use(plugin);
+        return new Vue({
+          render: (h) => h(App, props),
+        });
+      },
+    })
+  );
+  ```
+
+- Vue 3
+
+  ```js
+  import { createInertiaApp } from "@inertiajs/vue3";
+  import createServer from "@inertiajs/vue3/server";
+  import { renderToString } from "@vue/server-renderer";
+  import { createSSRApp, h } from "vue";
+
+  createServer((page) =>
+    createInertiaApp({
+      page,
+      render: renderToString,
+      resolve: (name) => {
+        const pages = import.meta.glob("./Pages/**/*.vue", { eager: true });
+        return pages[`./Pages/${name}.vue`];
+      },
+      setup({ App, props, plugin }) {
+        return createSSRApp({
+          render: () => h(App, props),
+        }).use(plugin);
+      },
+    })
+  );
+  ```
+
+- React
+
+  ```js
+  import { createInertiaApp } from "@inertiajs/react";
+  import createServer from "@inertiajs/react/server";
+  import ReactDOMServer from "react-dom/server";
+
+  createServer((page) =>
+    createInertiaApp({
+      page,
+      render: ReactDOMServer.renderToString,
+      resolve: (name) => {
+        const pages = import.meta.glob("./Pages/*_/_.jsx", { eager: true });
+        return pages[`./Pages/${name}.jsx`];
+      },
+      setup: ({ App, props }) => <App {...props} />,
+    })
+  );
+  ```
+
+- Svelte
+
+  ```js
+  import { createInertiaApp } from "@inertiajs/svelte";
+  import createServer from "@inertiajs/svelte/server";
+
+  createServer((page) =>
+    createInertiaApp({
+      page,
+      resolve: (name) => {
+        const pages = import.meta.glob("./Pages/**/*.svelte", { eager: true });
+        return pages[`./Pages/${name}.svelte`];
+      },
+    })
+  );
+  ```
+
+When creating this file, be sure to add anything that's missing from your app.js file that makes sense to run in SSR mode, such as plugins or custom mixins.
+
+### Setup Vite
+
+Next, we need to update our Vite configuration to build our new `ssr.js` file. We can do this by adding a `ssr` property to Laravel's Vite plugin configuration in our `vite.config.js` file.
+
+```
+export default defineConfig({
+  plugins: [
+    laravel({
+      input: ["resources/css/app.css", "resources/js/app.js"],
+    + ssr: "resources/js/ssr.js",
+      refresh: true,
+    }),
+    // ...
+  ],
+});
+```
+
+### Update npm script
+
+Next, let's update the `build` script in our `package.json` file to also build our new `ssr.js` file.
+
+```
+"scripts": {
+  "dev": "vite",
+  - "build": "vite build"
+  + "build": "vite build && vite build --ssr"
+},
+```
+
+Now you can build both your client-side and server-side bundles.
+
+```
+npm run build
+```
+
+### Running the SSR server
+
+Now that you have built both your client-side and server-side bundles, you should be able run the Node-based Inertia SSR server using the following command.
+
+```
+php artisan inertia:start-ssr
+```
+
+With the server running, you should be able to access your app within the browser with server-side rendering enabled. In fact, you should be able to disable JavaScript entirely and still navigate around your application.
+
+### Client side hydration
+
+Since your website is now being server-side rendered, you can instruct Vue to "hydrate" the static markup and make it interactive instead of re-rendering all the HTML that we just generated.
+
+- Vue 2
+
+  Inertia automatically enables client-side hydration in Vue 2 apps, so no changes are required.
+
+  ```
+  // No changes required
+  ```
+
+- Vue 3
+
+  To enable client-side hydration in a Vue 3 app, update your `app.js` file to use `createSSRApp` instead of `createApp`:
+
+  ```
+  - import { createApp, h } from 'vue'
+  + import { createSSRApp, h } from 'vue'
+    import { createInertiaApp } from '@inertiajs/vue3'
+
+    createInertiaApp({
+      resolve: name => {
+        const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
+        return pages[`./Pages/${name}.vue`]
+      },
+      setup({ el, App, props, plugin }) {
+  -     createApp({ render: () => h(App, props) })
+  +     createSSRApp({ render: () => h(App, props) })
+          .use(plugin)
+          .mount(el)
+      },
+    })
+  ```
+
+- React
+
+  To enable client-side hydration in a React app, update your `app.js` file to use `hydrateRoot` instead of `createRoot`:
+
+  ```
+    import { createInertiaApp } from '@inertiajs/react'
+  - import { createRoot } from 'react-dom/client'
+  + import { hydrateRoot } from 'react-dom/client'
+
+    createInertiaApp({
+      resolve: name => {
+        const pages = import.meta.glob('./Pages/**/*.jsx', { eager: true })
+        return pages[`./Pages/${name}.jsx`]
+      },
+      setup({ el, App, props }) {
+  -     createRoot(el).render(<App {...props} />)
+  +     hydrateRoot(el, <App {...props} />)
+      },
+    })
+  ```
+
+- Svelte
+
+  To enable client-side hydration in a Svelte app, set the `hydratable` compiler option to `true` in your `vite.config.js` file:
+
+  ```
+    import { svelte } from '@sveltejs/vite-plugin-svelte'
+    import laravel from 'laravel-vite-plugin'
+    import { defineConfig } from 'vite'
+
+    export default defineConfig({
+      plugins: [
+        laravel.default({
+          input: ['resources/css/app.css', 'resources/js/app.js'],
+          ssr: 'resources/js/ssr.js',
+          refresh: true,
+        }),
+  -     svelte(),
+  +     svelte({
+  +       compilerOptions: {
+  +         hydratable: true,
+  +       },
+  +     }),
+      ],
+    })
+  ```
+
+  You'll also need to enable hydration in your `app.js` file:
+
+  ```
+    import { createInertiaApp } from '@inertiajs/svelte'
+
+    createInertiaApp({
+      resolve: name => {
+        const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true })
+        return pages[`./Pages/.svelte`]
+      },
+  -   setup({ el, App, props }) {
+  -     new App({ target: el, props })
+  -   },
+  +   setup({ el, App }) {
+  +     new App({ target: el, hydrate: true })
+  +   },
+    })
+  ```
+
+### Hosting setup
+
+When deploying your SSR enabled app to production, you'll need to build both the client-side (`app.js`) and server-side bundles (`ssr.js`), and then run the SSR server as a background process, typically using a process monitoring tool such as Supervisor.
+
+```
+php artisan inertia:start-ssr
+```
+
+To stop the SSR server, for instance when you deploy a new version of your website, run. Your process monitor (such as Supervisor) should be responsible for automatically restarting the SSR server after it has stopped.
+
+```
+php artisan inertia:stop-ssr
+```
+
+### Laravel Forge
+
+To run the SSR server on Forge, you should create a new daemon that runs `php artisan inertia:start-ssr` from the root of your app.
+
+Next, whenever you deploy your application, you'll can automatically restart the SSR server by calling the `php artisan inertia:stop-ssr` command. This will stop the existing SSR server, forcing a new one to start.
+
+### Heroku
+
+To run the SSR server on Heroku, update the `web` configuration in your `Procfile` to run the SSR server before starting your web server.
+
+```
+web: php artisan inertia:start-ssr & vendor/bin/heroku-php-apache2 public/
+```
+
+Note, you must have the `heroku/nodejs` buildpack installed in addition to the `heroku/php` buildback for the SSR server to run.
