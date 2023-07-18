@@ -1,4 +1,5 @@
 import forms from '@tailwindcss/forms'
+import defaultTheme from 'tailwindcss/defaultTheme'
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -14,6 +15,14 @@ module.exports = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      fontFamily: {
+        sans: ['Nunito', ...defaultTheme.fontFamily.sans],
+      },
+    },
+  },
+  variants: {
+    extend: {
+      opacity: ['disabled'],
     },
   },
   plugins: [forms],
