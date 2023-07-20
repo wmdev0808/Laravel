@@ -1,20 +1,16 @@
-export interface InputErrorProps {
-  messages: string[]
-  className?: string
+import { HTMLAttributes } from 'react'
+
+export default function InputError({
+  message,
+  className = '',
+  ...props
+}: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
+  return message ? (
+    <p
+      {...props}
+      className={'text-sm text-red-600 dark:text-red-400 ' + className}
+    >
+      {message}
+    </p>
+  ) : null
 }
-
-const InputError = ({ messages = [], className = '' }: InputErrorProps) => (
-  <>
-    {messages.length > 0 && (
-      <>
-        {messages.map((message, index) => (
-          <p className={`${className} text-sm text-red-600`} key={index}>
-            {message}
-          </p>
-        ))}
-      </>
-    )}
-  </>
-)
-
-export default InputError

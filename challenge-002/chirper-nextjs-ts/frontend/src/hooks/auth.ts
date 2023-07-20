@@ -10,7 +10,7 @@ export interface User {
   email_verified_at: string
 }
 
-enum AuthMiddleware {
+export enum AuthMiddleware {
   guest = 'guest',
   auth = 'auth',
 }
