@@ -41,9 +41,9 @@ export interface LoginInputProps {
   password: string
   remember: boolean
   setErrors: Dispatch<
-    SetStateAction<Partial<Record<'email' | 'password', string>>>
+    SetStateAction<Partial<Record<'email' | 'password', string[]>>>
   >
-  setStatus: Dispatch<SetStateAction<number | null>>
+  setStatus: Dispatch<SetStateAction<number | string | null>>
 }
 
 export type ForgotPasswordInputProps = Pick<
@@ -57,14 +57,14 @@ export interface ResetPasswordInputProps {
   password_confirmation: string
   setErrors: Dispatch<
     SetStateAction<
-      Partial<Record<'email' | 'password' | 'password_confirmation', string>>
+      Partial<Record<'email' | 'password' | 'password_confirmation', string[]>>
     >
   >
-  setStatus: Dispatch<SetStateAction<number | null>>
+  setStatus: Dispatch<SetStateAction<number | string | null>>
 }
 
 export type ResendEmailVerificationProps = {
-  setStatus: Dispatch<SetStateAction<number | null>>
+  setStatus: Dispatch<SetStateAction<number | string | null>>
 }
 
 export const useAuth = ({

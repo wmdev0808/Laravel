@@ -1,7 +1,7 @@
 import { HTMLAttributes } from 'react'
 
 type AuthSessionStatusProps = {
-  status: number | null
+  status: number | string | null
 } & HTMLAttributes<HTMLDivElement>
 
 const AuthSessionStatus = ({
