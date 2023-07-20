@@ -75,7 +75,7 @@ export const useAuth = ({
     data: user,
     error,
     mutate,
-  } = useSWR('/api/user', () =>
+  } = useSWR<User>('/api/user', () =>
     axios
       .get('/api/user')
       .then((res) => res.data)

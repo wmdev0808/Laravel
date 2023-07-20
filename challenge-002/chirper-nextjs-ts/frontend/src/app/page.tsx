@@ -4,7 +4,7 @@ import { Metadata } from 'next'
 import HomeNav from './nav'
 
 export const metadata: Metadata = {
-  title: 'Laravel',
+  title: 'Next.js(App Router) + Laravel',
 }
 
 export default function Home() {

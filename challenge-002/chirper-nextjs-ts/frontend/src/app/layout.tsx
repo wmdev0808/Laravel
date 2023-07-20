@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Laravel',
+  title: 'Next.js(App Router) & Laravel',
   description: 'Next.js v13.x with Laravel',
 }
 
@@ -23,9 +23,7 @@ export default function RootLayout({
         />
       </head>
 
-      <body className={inter.className}>
-        <div className="font-sans text-gray-900 antialiased">{children}</div>
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }
