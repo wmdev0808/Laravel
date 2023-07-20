@@ -52,6 +52,7 @@ export type ForgotPasswordInputProps = Pick<
 >
 
 export interface ResetPasswordInputProps {
+  token: string
   email: string
   password: string
   password_confirmation: string
@@ -153,7 +154,7 @@ export const useAuth = ({
     setStatus(null)
 
     axios
-      .post('/reset-password', { token: searchParams.get('token'), ...props })
+      .post('/reset-password', { ...props })
       .then((response) =>
         router.push('/login?reset=' + btoa(response.data.status)),
       )
