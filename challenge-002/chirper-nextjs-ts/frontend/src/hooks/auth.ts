@@ -27,7 +27,10 @@ export interface RegisterInputProps {
   setErrors: Dispatch<
     SetStateAction<
       Partial<
-        Record<'name' | 'email' | 'password' | 'password_confirmation', string>
+        Record<
+          'name' | 'email' | 'password' | 'password_confirmation',
+          string[]
+        >
       >
     >
   >
