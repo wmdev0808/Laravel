@@ -1,8 +1,13 @@
 <div>
-    <input wire:model.live="name" type="text">
+    @foreach ($contacts as $contact)
+        <livewire:say-hi :$contact :key="$contact->id" />
 
-    Hello {{ $name }}
+        <button wire:click="removeContact('{{ $contact->name }}')">Remove</button>
+    @endforeach
 
-    <br>
-    Hydrated: {{ $hydratedName }}
+    <hr>
+
+    <button wire:click="$refresh">refresh</button>
+
+    {{ now() }}
 </div>

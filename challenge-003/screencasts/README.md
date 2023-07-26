@@ -32,6 +32,8 @@ When you interact with a Livewire component, a request undergoes a "lifecycle". 
 
 -   Nesting
 
+Like any good "component-based" framework, Livewire components are nestable. However, there are a few important caveats to understand about seperating components into "parents" and "children". We'll cover all the ins and outs in this video.
+
 -   Events
 
 ## A Basic Form With Validation

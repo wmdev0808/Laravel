@@ -18,8 +18,8 @@
 </head>
 
 <body class="h-full">
-    @livewire('hello-world', ['name' => 'Chico'])
-
+    {{-- @livewire('hello-world', ['name' => 'Chico']) --}}
+    <livewire:hello-world name="Chico" />
     @livewireScripts
 </body>
 

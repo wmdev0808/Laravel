@@ -2,50 +2,22 @@
 
 namespace App\Livewire;
 
-use Illuminate\Http\Request;
+use App\Models\Contact;
 use Livewire\Component;
 
 class HelloWorld extends Component
 {
-    public $name = 'Paul';
+    public $contacts;
 
-    public $hydratedName;
-
-    // public function mount(Request $request, $name)
-    // {
-    //     $this->name = $request->input('name', $name);
-    // }
-
-    public function mount($name)
+    public function mount()
     {
-        $this->name = $name;
+        $this->contacts = Contact::all();
     }
 
-    public function hydrate()
+    public function removeContact($name)
     {
-        $this->hydratedName = 'hydrated';
-    }
-
-    public function updating()
-    {
-    }
-
-    // public function updated()
-    // {
-    //     $this->name = strtoupper($this->name);
-    // }
-
-    // public function updated($name)
-    // {
-    //     $this->name = strtoupper($name);
-    // }
-
-    /**
-     * Because you are often targeting a specific property when using update hooks, Livewire allows you to specify the property name directly as part of the method name.
-     */
-    public function updatedName($name)
-    {
-        $this->name = strtoupper($name);
+        Contact::whereName($name)->first()->delete();
+        $this->contacts = Contact::all();
     }
 
     public function render()
