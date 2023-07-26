@@ -10,6 +10,12 @@
         composer require livewire/livewire:^3.0@beta
         ```
 
+    -   Create a Livewire component
+
+        ```
+        php artisan make:livewire hello-world
+        ```
+
 -   Data Binding
 
 -   Actions
