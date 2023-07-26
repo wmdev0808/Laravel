@@ -44,6 +44,8 @@ When it comes to "inter-component" communication, Livewire offers a singular, si
 
 -   Setting Up The Component
 
+We'll set up our first real Livewire component in "Surge", and learn a few handy tricks along the way to reduce boilerplate and manipulate components more efficiently.
+
 -   Setting Up The Form
 
 -   Adding Validation
