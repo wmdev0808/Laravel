@@ -18,7 +18,7 @@
 </head>
 
 <body class="h-full">
-    @livewire('hello-world')
+    @livewire('hello-world', ['name' => 'Chico'])
 
     @livewireScripts
 </body>

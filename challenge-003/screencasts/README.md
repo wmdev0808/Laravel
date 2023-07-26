@@ -28,6 +28,8 @@ Building off the data-binding concept, "actions" in Livewire (the word we use fo
 
 -   Lifecycle Hooks
 
+When you interact with a Livewire component, a request undergoes a "lifecycle". Understanding the available lifecycle "hooks" allows you to attach behavior conventiently to different phases of an interaction.
+
 -   Nesting
 
 -   Events
