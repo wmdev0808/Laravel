@@ -36,6 +36,8 @@ Like any good "component-based" framework, Livewire components are nestable. How
 
 -   Events
 
+When it comes to "inter-component" communication, Livewire offers a singular, simple, but powerful pattern: Events. You will learn how to use them to make two or more components talk to each other, or even how they can talk to third-party javascript code.
+
 ## A Basic Form With Validation
 
 -   Introduction
