@@ -4,6 +4,8 @@
 
 -   Installation
 
+Installing Livewire is so simple. Composer require, and two little lines added to your layout file, and you are fully set up and ready to rumble!
+
     -   Install Livewire
 
         ```
@@ -17,6 +19,8 @@
         ```
 
 -   Data Binding
+
+The first and most important concept to understand when using Livewire is "data binding". It's the backbone of page reactivity in Livewire, and it'll be your first introduction into how Livewire works under the hood. Mandatory viewing.
 
 -   Actions
 
