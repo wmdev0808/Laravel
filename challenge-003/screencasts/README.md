@@ -24,6 +24,8 @@ The first and most important concept to understand when using Livewire is "data 
 
 -   Actions
 
+Building off the data-binding concept, "actions" in Livewire (the word we use for component methods) is the final piece of the "reactivity" puzzle. Easily trigger back-end code from front-end actions. No endpoints, no controllers, just plain PHP methods.
+
 -   Lifecycle Hooks
 
 -   Nesting

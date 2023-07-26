@@ -13,4 +13,6 @@
     {{ implode(', ', $greeting) }} {{ $name }} @if ($loud)
         !
     @endif
+
+    <button wire:click="resetName">Reset Name</button>
 </div>
