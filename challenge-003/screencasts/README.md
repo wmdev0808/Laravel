@@ -2,6 +2,14 @@
 
 ## Getting Started
 
+-   Installation
+
+    -   Install Livewire
+
+        ```
+        composer require livewire/livewire:^3.0@beta
+        ```
+
 -   Data Binding
 
 -   Actions
