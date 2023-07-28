@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Livewire\Auth\Passwords;
+namespace App\Livewire\Auth\Passwords;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Password;
+use Livewire\Attributes\Title;
 
+#[Title('Reset password')]
 class Email extends Component
 {
     /** @var string */
@@ -42,6 +44,7 @@ class Email extends Component
 
     public function render()
     {
-        return view('livewire.auth.passwords.email')->extends('layouts.auth');
+        return view('livewire.auth.passwords.email')
+            ->extends('components.layouts.auth');
     }
 }

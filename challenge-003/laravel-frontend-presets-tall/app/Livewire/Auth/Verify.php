@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Livewire\Auth;
+namespace App\Livewire\Auth;
 
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Verify your email address')]
 class Verify extends Component
 {
     public function resend()
@@ -23,6 +25,7 @@ class Verify extends Component
 
     public function render()
     {
-        return view('livewire.auth.verify')->extends('layouts.auth');
+        return view('livewire.auth.verify')
+            ->extends('components.layouts.auth');
     }
 }

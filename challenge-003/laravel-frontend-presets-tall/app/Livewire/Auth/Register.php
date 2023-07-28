@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Auth;
+namespace App\Livewire\Auth;
 
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
@@ -46,6 +46,8 @@ class Register extends Component
 
     public function render()
     {
-        return view('livewire.auth.register')->extends('layouts.auth');
+        return view('livewire.auth.register')
+            ->extends('components.layouts.auth')
+            ->title('Create a new account');
     }
 }

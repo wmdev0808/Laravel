@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Auth\Passwords;
+namespace App\Livewire\Auth\Passwords;
 
 use App\Providers\RouteServiceProvider;
 use Livewire\Component;
@@ -88,6 +88,8 @@ class Reset extends Component
 
     public function render()
     {
-        return view('livewire.auth.passwords.reset')->extends('layouts.auth');
+        return view('livewire.auth.passwords.reset')
+            ->extends('layouts.auth')
+            ->title('Reset password');
     }
 }
