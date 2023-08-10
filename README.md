@@ -20,4 +20,6 @@
   - [Screencasts](challenge-003/screencasts/README.md)
   - [Larvel TALL Preset](challenge-003/laravel-frontend-presets-tall/README.md)
 
-- [Laravel Jetstream](challenge-004/README.md)
+- [Inertia](challenge-004/README.md)
+  - [Build Modern Laravel Apps Using Inertia.js](challenge-004/README.md#build-modern-laravel-apps-using-inertiajs)
+- [Laravel Jetstream](challenge-005/README.md)
