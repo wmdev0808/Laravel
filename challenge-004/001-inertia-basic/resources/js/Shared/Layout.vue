@@ -1,12 +1,19 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import Nav from "./Nav.vue";
+import { usePage } from "@inertiajs/vue3";
+const page = usePage();
+const username = computed(() => page.props.auth.user.name);
 </script>
 
 <template>
     <section class="p-6 bg-gray-200">
         <header class="flex justify-between">
-            <h1 class="font-bold text-lg">My App</h1>
+            <div class="flex items-center">
+                <h1 class="font-bold text-lg">My App</h1>
+            </div>
 
+            <p class="text-sm ml-4">Welcome Back, {{ username }}</p>
             <Nav />
         </header>
     </section>
