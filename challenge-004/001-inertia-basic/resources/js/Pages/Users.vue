@@ -2,18 +2,17 @@
 import Layout from "@/Shared/Layout.vue";
 
 defineProps<{ time: string }>();
+defineOptions({ layout: Layout });
 </script>
 
 <template>
-    <Layout>
-        <h1 class="text-3xl">Users</h1>
+    <h1 class="text-3xl">Users</h1>
 
-        <div style="margin-top: 400px">
-            <p>The current time is {{ time }}.</p>
+    <div style="margin-top: 400px">
+        <p>The current time is {{ time }}.</p>
 
-            <Link href="/users" class="text-blue-500" preserve-scroll>
-                Refresh
-            </Link>
-        </div>
-    </Layout>
+        <Link href="/users" class="text-blue-500" preserve-scroll>
+            Refresh
+        </Link>
+    </div>
 </template>
