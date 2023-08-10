@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import Layout from "@/Shared/Layout.vue";
+// import Layout from "@/Shared/Layout.vue";
 
 defineProps<{ time: string }>();
-defineOptions({ layout: Layout });
+// defineOptions({ layout: Layout });
 </script>
 
 <template>
