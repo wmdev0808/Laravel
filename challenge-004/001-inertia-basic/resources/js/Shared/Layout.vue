@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import Nav from "./Nav.vue";
 import { usePage } from "@inertiajs/vue3";
+
 const page = usePage();
 const username = computed(() => page.props.auth.user.name);
 </script>
