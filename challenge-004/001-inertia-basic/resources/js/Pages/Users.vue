@@ -6,6 +6,8 @@ defineProps<{ time: string }>();
 </script>
 
 <template>
+    <Head title="Users" />
+
     <h1 class="text-3xl">Users</h1>
 
     <div style="margin-top: 400px">

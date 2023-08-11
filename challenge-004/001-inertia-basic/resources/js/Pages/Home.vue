@@ -19,5 +19,13 @@ defineOptions({
 </script> -->
 
 <template>
+    <Head>
+        <title>Home</title>
+        <meta
+            head-key="description"
+            type="description"
+            content="Home information"
+        />
+    </Head>
     <h1 class="text-3xl">Home</h1>
 </template>
