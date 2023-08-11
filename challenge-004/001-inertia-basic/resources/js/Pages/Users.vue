@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { User } from "@/types";
+
 // import Layout from "@/Shared/Layout.vue";
 
-defineProps<{ time: string }>();
+defineProps<{ users: User[] }>();
 // defineOptions({ layout: Layout });
 </script>
 
@@ -10,11 +12,7 @@ defineProps<{ time: string }>();
 
     <h1 class="text-3xl">Users</h1>
 
-    <div style="margin-top: 400px">
-        <p>The current time is {{ time }}.</p>
-
-        <Link href="/users" class="text-blue-500" preserve-scroll>
-            Refresh
-        </Link>
-    </div>
+    <ul>
+        <li v-for="user in users" :key="user.id" v-text="user.name" />
+    </ul>
 </template>
