@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -28,14 +30,21 @@ Route::get('/', function () {
     return Inertia::render('Home');
 });
 
-Route::get('/users', function () {
+Route::get('/users', function (Request $request) {
     // sleep(2);
 
     return Inertia::render('Users', [
-        'users' => User::paginate(10)->through(fn ($user) => [
-            'id' => $user->id,
-            'name' => $user->name
-        ])
+        'users' => User::query()
+            ->when($request->input('search'), function (Builder $query, string $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name
+            ]),
+        'filters' => $request->only(['search'])
     ]);
 });
 
