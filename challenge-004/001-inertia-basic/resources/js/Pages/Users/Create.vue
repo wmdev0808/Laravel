@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { reactive } from "vue";
 import { useForm } from "@inertiajs/vue3";
 
 const form = useForm({
@@ -31,6 +30,11 @@ const form = useForm({
                 id="name"
                 required
             />
+            <div
+                v-if="form.errors.name"
+                v-text="form.errors.name"
+                class="text-red-500 text-xs mt-1"
+            ></div>
         </div>
 
         <div class="mb-6">
@@ -49,6 +53,11 @@ const form = useForm({
                 id="email"
                 required
             />
+            <div
+                v-if="form.errors.email"
+                v-text="form.errors.email"
+                class="text-red-500 text-xs mt-1"
+            ></div>
         </div>
 
         <div class="mb-6">
@@ -67,6 +76,11 @@ const form = useForm({
                 id="password"
                 required
             />
+            <div
+                v-if="form.errors.password"
+                v-text="form.errors.password"
+                class="text-red-500 text-xs mt-1"
+            ></div>
         </div>
 
         <div class="mb-6">
