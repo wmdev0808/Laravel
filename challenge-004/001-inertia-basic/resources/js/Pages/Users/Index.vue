@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { router } from "@inertiajs/vue3";
+import { debounce } from "lodash";
 
 import type { User } from "@/types";
 // import Layout from "@/Shared/Layout.vue";
@@ -14,13 +15,16 @@ const props = defineProps<{
 
 const search = ref(props.filters.search);
 
-watch(search, (value) => {
-    router.get(
-        "/users",
-        { search: value },
-        { preserveState: true, replace: true }
-    );
-});
+watch(
+    search,
+    debounce(function (value: string) {
+        router.get(
+            "/users",
+            { search: value },
+            { preserveState: true, replace: true }
+        );
+    }, 300)
+);
 </script>
 
 <template>
