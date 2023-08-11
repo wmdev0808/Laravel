@@ -8,8 +8,9 @@ import type { User } from "@/types";
 import Pagination, { LinkItem } from "@/Shared/Pagination.vue";
 
 const props = defineProps<{
-    users: { data: Partial<User>[]; links: LinkItem[] };
+    users: { data: Pick<User, "id" | "name" | "can">[]; links: LinkItem[] };
     filters: { search: string };
+    can: { createUser: boolean };
 }>();
 // defineOptions({ layout: Layout });
 
@@ -34,7 +35,10 @@ watch(
         <div class="flex items-center">
             <h1 class="text-3xl">Users</h1>
 
-            <Link href="/users/create" class="text-blue-500 text-sm ml-3"
+            <Link
+                v-if="can.createUser"
+                href="/users/create"
+                class="text-blue-500 text-sm ml-3"
                 >New User</Link
             >
         </div>
@@ -71,6 +75,7 @@ watch(
                                 </td>
 
                                 <td
+                                    v-if="user.can.edit"
                                     class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
                                 >
                                     <Link
