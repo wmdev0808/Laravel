@@ -23,3 +23,4 @@
 - [Inertia](challenge-004/README.md)
   - [Build Modern Laravel Apps Using Inertia.js](challenge-004/README.md#build-modern-laravel-apps-using-inertiajs)
 - [Laravel Jetstream](challenge-005/README.md)
+- [Deployment](challenge-006/README.md)
